@@ -1,0 +1,4 @@
+./sales-system-backend/vendor
+./sales-system-backend/node_modules
+./sales-system-frontend/node_modules
+./sales-system-frontend/.quasar
