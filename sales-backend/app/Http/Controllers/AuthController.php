@@ -42,7 +42,7 @@ class AuthController extends Controller
     ]);
 
     // Atribuir role padrão de Vendedor
-    $user->assignRole('Vendedor');
+    $user->HasRole('Vendedor');
 
     $token = $user->createToken('auth_token')->plainTextToken;
 
