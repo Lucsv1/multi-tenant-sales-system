@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Role;
+use App\Models\Sale;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     protected $fillable = [
         'tenant_id',
@@ -42,14 +45,6 @@ class User extends Authenticatable
         return $this->belongsTo(Tenant::class);
     }
 
-    /**
-     * Relacionamento com Roles (usando Spatie Permission)
-     * Será configurado após instalar o pacote
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id');
-    }
 
     /**
      * Relacionamento com Sales (vendas realizadas)
@@ -74,4 +69,5 @@ class User extends Authenticatable
     {
         return $this->hasRole('Admin da Loja');
     }
+
 }
