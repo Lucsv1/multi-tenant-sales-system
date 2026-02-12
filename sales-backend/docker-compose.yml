@@ -19,9 +19,9 @@ services:
       - redis
     environment:
       - DB_HOST=mysql
-      - DB_DATABASE=sales_db
-      - DB_USERNAME=sales_user
-      - DB_PASSWORD=sales_password
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - QUEUE_CONNECTION=redis
 
@@ -48,15 +48,14 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: sales_db
-      MYSQL_USER: sales_user
-      MYSQL_PASSWORD: sales_password
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - sales-network
-    command: --default-authentication-plugin=mysql_native_password
 
   # Redis
   redis:
@@ -88,11 +87,22 @@ services:
     command: php artisan queue:work redis --tries=3 --timeout=90
     environment:
       - DB_HOST=mysql
-      - DB_DATABASE=sales_db
-      - DB_USERNAME=sales_user
-      - DB_PASSWORD=sales_password
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - QUEUE_CONNECTION=redis
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+    networks:
+      - sales-network
 
 networks:
   sales-network:
