@@ -25,31 +25,31 @@ class RoleSeeder extends Seeder
 
     $permissions = [
       // Usuários
-      ['name' => 'manage-users', 'guard_name' => 'web'],
+      ['name' => 'manage-users', 'guard_name' => 'api'],
 
       // Produtos
-      ['name' => 'view-products', 'guard_name' => 'web'],
-      ['name' => 'create-products', 'guard_name' => 'web'],
-      ['name' => 'edit-products', 'guard_name' => 'web'],
-      ['name' => 'delete-products', 'guard_name' => 'web'],
+      ['name' => 'view-products', 'guard_name' => 'api'],
+      ['name' => 'create-products', 'guard_name' => 'api'],
+      ['name' => 'edit-products', 'guard_name' => 'api'],
+      ['name' => 'delete-products', 'guard_name' => 'api'],
 
       // Clientes
-      ['name' => 'view-customers', 'guard_name' => 'web'],
-      ['name' => 'create-customers', 'guard_name' => 'web'],
-      ['name' => 'edit-customers', 'guard_name' => 'web'],
-      ['name' => 'delete-customers', 'guard_name' => 'web'],
+      ['name' => 'view-customers', 'guard_name' => 'api'],
+      ['name' => 'create-customers', 'guard_name' => 'api'],
+      ['name' => 'edit-customers', 'guard_name' => 'api'],
+      ['name' => 'delete-customers', 'guard_name' => 'api'],
 
       // Vendas
-      ['name' => 'view-sales', 'guard_name' => 'web'],
-      ['name' => 'create-sales', 'guard_name' => 'web'],
-      ['name' => 'cancel-sales', 'guard_name' => 'web'],
+      ['name' => 'view-sales', 'guard_name' => 'api'],
+      ['name' => 'create-sales', 'guard_name' => 'api'],
+      ['name' => 'cancel-sales', 'guard_name' => 'api'],
 
       // Relatórios
-      ['name' => 'view-reports', 'guard_name' => 'web'],
-      ['name' => 'export-reports', 'guard_name' => 'web'],
+      ['name' => 'view-reports', 'guard_name' => 'api'],
+      ['name' => 'export-reports', 'guard_name' => 'api'],
 
       // Configurações
-      ['name' => 'manage-settings', 'guard_name' => 'web'],
+      ['name' => 'manage-settings', 'guard_name' => 'api'],
     ];
 
     foreach ($permissions as $permission) {
@@ -67,14 +67,14 @@ class RoleSeeder extends Seeder
 
     $adminRoleId = DB::table('roles')->insertGetId([
       'name' => 'Admin da Loja',
-      'guard_name' => 'web',
+      'guard_name' => 'api',
       'created_at' => now(),
       'updated_at' => now(),
     ]);
 
     $vendedorRoleId = DB::table('roles')->insertGetId([
       'name' => 'Vendedor',
-      'guard_name' => 'web',
+      'guard_name' => 'api',
       'created_at' => now(),
       'updated_at' => now(),
     ]);
