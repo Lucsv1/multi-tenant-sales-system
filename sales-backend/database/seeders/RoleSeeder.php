@@ -66,7 +66,7 @@ class RoleSeeder extends Seeder
     // ============================================================
 
     $adminRoleId = DB::table('roles')->insertGetId([
-      'name' => 'Admin da Loja',
+      'name' => 'Admin',
       'guard_name' => 'api',
       'created_at' => now(),
       'updated_at' => now(),
@@ -120,7 +120,7 @@ class RoleSeeder extends Seeder
     $this->command->info('');
     $this->command->info('📋 Resumo:');
     $this->command->info('   - ' . count($permissions) . ' permissions criadas');
-    $this->command->info('   - 2 roles criadas (Admin da Loja, Vendedor)');
+    $this->command->info('   - 2 roles criadas (Admin, Vendedor)');
     $this->command->info('   - Admin: ' . $allPermissions->count() . ' permissions');
     $this->command->info('   - Vendedor: ' . count($vendedorPermissions) . ' permissions');
   }

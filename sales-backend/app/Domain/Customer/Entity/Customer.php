@@ -2,15 +2,19 @@
 
 namespace App\Domain\Customer\Entity;
 
+use App\Domain\Shared\ValueObject\CpfCnpj;
+use App\Domain\Shared\ValueObject\Email;
+
+
 class Customer
 {
 
   private string $id;
   private int $tenantId;
   private string $name;
-  private ?string $email;
+  private ?Email $email;
   private ?string $phone;
-  private ?string $cpfCnpj;
+  private ?CpfCnpj $cpfCnpj;
   private ?string $zipCode;
   private ?string $address;
   private ?string $number;
@@ -24,9 +28,9 @@ class Customer
     string $id,
     int $tenantId,
     string $name,
-    ?string $email,
+    ?Email $email,
     ?string $phone,
-    ?string $cpfCnpj,
+    ?CpfCnpj $cpfCnpj,
     ?string $zipCode,
     ?string $address,
     ?string $number,

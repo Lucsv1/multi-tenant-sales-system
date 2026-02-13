@@ -2,7 +2,7 @@
 
 namespace App\Interface\Product\Http\Controllers;
 
-use App\Interface\Http\Controllers\Controller;
+use App\Interface\Shared\Http\Controllers\Controller;
 use App\Infra\Product\Persistence\Eloquent\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

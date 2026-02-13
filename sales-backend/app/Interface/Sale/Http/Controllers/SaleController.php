@@ -4,7 +4,7 @@ namespace App\Interface\Sale\Http\Controllers;
 
 use App\Application\Sale\Service\SaleService;
 use App\Infra\Sale\Persistence\Eloquent\Sale;
-use App\Interface\Http\Controllers\Controller;
+use App\Interface\Shared\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
