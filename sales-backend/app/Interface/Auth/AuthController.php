@@ -43,7 +43,7 @@ class AuthController extends Controller
 
         $user->assignRole('Vendedor');
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token', ['*'], now()->addHours(24))->plainTextToken;
         // Atribuir role padrão de Vendedor
 
         return response()->json([
@@ -81,7 +81,7 @@ class AuthController extends Controller
         // Revogar tokens antigos
         $user->tokens()->delete();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token', ['*'], now()->addHours(24))->plainTextToken;
 
         return response()->json([
             'message' => 'Login realizado com sucesso',
