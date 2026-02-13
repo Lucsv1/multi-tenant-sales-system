@@ -40,7 +40,7 @@ class CustomerService
             $customers = $query->paginate($perPage);
 
             // Transformar cada item em CustomerResponse
-            return $customers->through(fn ($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer)));
+            return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer)));
         });
     }
 
@@ -76,7 +76,7 @@ class CustomerService
         return DB::transaction(function () use ($customerRequest, $customer) {
 
             $customer->update($customerRequest->validated());
-            $customerDomain = CustomerMapper::toDomain($customer->fresh);
+            $customerDomain = CustomerMapper::toDomain($customer->fresh());
 
             return [
                 'message' => 'Customer atualizado com sucesso',
