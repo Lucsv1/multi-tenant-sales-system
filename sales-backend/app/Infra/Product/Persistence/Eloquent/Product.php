@@ -3,7 +3,7 @@
 namespace App\Infra\Product\Persistence\Eloquent;
 
 use App\Infra\Persistence\Eloquent\Traits\BelongsToTenant;
-use App\Infra\SalesItem\Persistence\Eloquent\SaleItem;
+use App\Infra\SaleItem\Persistence\Eloquent\SaleItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
