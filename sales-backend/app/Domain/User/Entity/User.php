@@ -2,7 +2,8 @@
 
 namespace App\Domain\User\Entity;
 
-use App\Domain\User\ValueObject\Email;
+use App\Domain\Shared\ValueObject\Email;
+
 
 class User
 {
