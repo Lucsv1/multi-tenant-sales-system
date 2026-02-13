@@ -20,6 +20,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('customer/{customer}', [CustomerController::class, 'show']);
         Route::put('customer/{customer}', [CustomerController::class, 'update']);
         Route::delete('customer/{customer}', [CustomerController::class, 'destroy']);
+
+        //Products
+
     });
 
 });
