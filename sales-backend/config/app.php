@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Namespace
+    |--------------------------------------------------------------------------
+    |
+    | This value is the namespace of your application. This value is used when
+    | the framework needs to place your application's namespace.
+    |
+    */
+
+    'namespace' => 'App',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

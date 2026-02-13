@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Tenant;
+use App\Infra\Tenant\Persistence\Eloquent\Tenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
