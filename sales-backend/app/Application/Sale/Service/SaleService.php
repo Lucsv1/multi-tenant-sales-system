@@ -2,10 +2,12 @@
 
 namespace App\Application\Sale\Service;
 
-use App\Models\Product;
-use App\Models\Sale;
-use App\Models\SaleItem;
+use App\Application\Sale\DTOs\SaleRequest;
+use App\Infra\Product\Persistence\Eloquent\Product;
+use App\Infra\Sale\Persistence\Eloquent\Sale;
+use App\Infra\SaleItem\Persistence\Eloquent\SaleItem;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class SaleService
@@ -15,34 +17,34 @@ class SaleService
      *
      * @throws Exception
      */
-    public function createSale(array $data): Sale
+    public function createSale(SaleRequest $saleRequest): JsonResponse
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($saleRequest) {
             // 1. Validar estoque antes de tudo
-            $this->validateStock($data['items']);
+            $this->validateStock($saleRequest['items']);
 
             // 2. Criar a venda
             $sale = Sale::create([
-                'customer_id' => $data['customer_id'] ?? null,
+                'customer_id' => $saleRequest['customer_id'] ?? null,
                 'user_id' => auth()->id(),
-                'discount' => $data['discount'] ?? 0,
-                'status' => $data['status'] ?? 'completed',
-                'payment_method' => $data['payment_method'] ?? null,
-                'notes' => $data['notes'] ?? null,
-                'sale_date' => $data['sale_date'] ?? now(),
+                'discount' => $saleRequest['discount'] ?? 0,
+                'status' => $saleRequest['status'] ?? 'completed',
+                'payment_method' => $saleRequest['payment_method'] ?? null,
+                'notes' => $saleRequest['notes'] ?? null,
+                'sale_date' => $saleRequest['sale_date'] ?? now(),
             ]);
 
             // 3. Criar itens e debitar estoque atomicamente
-            foreach ($data['items'] as $itemData) {
+            foreach ($saleRequest['items'] as $itemData) {
                 $product = Product::lockForUpdate()->findOrFail($itemData['product_id']);
 
                 // Verificar estoque novamente (lock pessimista)
-                if (! $product->hasStock($itemData['quantity'])) {
+                if (!$product->hasStock($itemData['quantity'])) {
                     throw new Exception("Estoque insuficiente para o produto: {$product->name}");
                 }
 
                 // Criar item da venda
-                SaleItem::create([
+                \App\Infra\SaleItem\Persistence\Eloquent\SaleItem::create([
                     'sale_id' => $sale->id,
                     'product_id' => $product->id,
                     'product_name' => $product->name,
@@ -74,13 +76,13 @@ class SaleService
         foreach ($items as $item) {
             $product = Product::find($item['product_id']);
 
-            if (! $product) {
+            if (!$product) {
                 throw new Exception("Produto não encontrado: ID {$item['product_id']}");
             }
 
-            if (! $product->hasStock($item['quantity'])) {
+            if (!$product->hasStock($item['quantity'])) {
                 throw new Exception(
-                    "Estoque insuficiente para '{$product->name}'. ".
+                    "Estoque insuficiente para '{$product->name}'. " .
                     "Disponível: {$product->stock}, Solicitado: {$item['quantity']}"
                 );
             }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infra\SalesItem\Persistence\Eloquent;
+namespace App\Infra\SaleItem\Persistence\Eloquent;
 
 use App\Infra\Product\Persistence\Eloquent\Product;
 use App\Infra\Sale\Persistence\Eloquent\Sale;

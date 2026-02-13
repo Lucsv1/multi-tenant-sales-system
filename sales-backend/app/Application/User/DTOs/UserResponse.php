@@ -3,7 +3,7 @@
 namespace App\Application\Auth\DTOs;
 
 use App\Domain\User\Entity\User;
-use App\Domain\User\ValueObject\Email;
+use App\Domain\Shared\ValueObject\Email;
 
 class UserResponse
 {
@@ -25,7 +25,7 @@ class UserResponse
       id: $user->getId(),
       tenant_id: $user->getTenantId(),
       name: $user->getName(),
-      email: $user->getEmail(),
+      email: new Email($user->getEmail()),
       email_verified_at: $user->getEamilVerifiedAt(),
       password: $user->getPassword(),
       isActive: $user->isIsActive(),
@@ -38,7 +38,7 @@ class UserResponse
       'id' => $this->id,
       'tenant_id' => $this->tenant_id,
       'name' => $this->name,
-      'email' => $this->email,
+      'email' => new Email($this->email),
       'email_verified_at' => $this->email_verified_at,
       'password' => $this->password,
       'isActive' => $this->isActive

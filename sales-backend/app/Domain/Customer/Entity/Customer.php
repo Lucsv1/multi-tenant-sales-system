@@ -96,7 +96,7 @@ class Customer
     return $this->zipCode;
   }
 
-  public function getCpfCnpj(): ?string
+  public function getCpfCnpj(): ?CpfCnpj
   {
     return $this->cpfCnpj;
   }
@@ -106,7 +106,7 @@ class Customer
     return $this->phone;
   }
 
-  public function getEmail(): ?string
+  public function getEmail(): ?Email
   {
     return $this->email;
   }

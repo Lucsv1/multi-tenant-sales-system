@@ -17,6 +17,7 @@ class Sale
   private ?string $paymentMethod;
   private ?string $notes;
   private ?\DateTimeInterface $saleDate;
+  private array $items = [];
 
   public function __construct(
     string $id,
@@ -30,7 +31,8 @@ class Sale
     string $status,
     ?string $paymentMethod,
     ?string $notes,
-    ?\DateTimeInterface $saleDate
+    ?\DateTimeInterface $saleDate,
+    ?array $items = [],
   ) {
     $this->id = $id;
     $this->tenantId = $tenantId;
@@ -44,6 +46,7 @@ class Sale
     $this->paymentMethod = $paymentMethod;
     $this->notes = $notes;
     $this->saleDate = $saleDate;
+    $this->items = $items;
   }
 
   public function getSaleDate(): ?\DateTimeInterface
@@ -104,5 +107,13 @@ class Sale
   public function getId(): string
   {
     return $this->id;
+  }
+
+  /**
+   * Get the value of items
+   */
+  public function getItems(): array
+  {
+    return $this->items;
   }
 }
