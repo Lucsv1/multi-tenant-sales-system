@@ -3,7 +3,6 @@
 namespace App\Application\Sale\DTOs;
 
 use App\Domain\Sale\Entity\Sale;
-use App\Application\SaleItem\DTOs\SaleItemResponse;
 
 class SaleResponse
 {

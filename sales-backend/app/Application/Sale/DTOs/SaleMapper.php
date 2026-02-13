@@ -2,6 +2,7 @@
 
 namespace App\Application\Sale\DTOs;
 
+use App\Application\SaleItem\DTOs\SaleItemMapper;
 use App\Domain\Sale\Entity\Sale as DomainSale;
 use App\Infra\Sale\Persistence\Eloquent\Sale as EloquentSale;
 
