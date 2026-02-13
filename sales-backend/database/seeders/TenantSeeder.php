@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Tenant;
+use App\Infra\Tenant\Persistence\Eloquent\Tenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -62,7 +62,7 @@ class TenantSeeder extends Seeder
                 'email' => 'contato@elegance.com.br',
                 'phone' => '(11) 94444-4444',
                 'cnpj' => '33.444.555/0001-11',
-                'is_active' => false, // ← Exemplo de tenant inativo
+                'is_active' => false,
             ],
         ];
 
