@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Product\Mappers;
+namespace App\Application\Product\DTOs;
 
 use App\Domain\Product\Entity\Product as DomainProduct;
 use App\Infra\Product\Persistence\Eloquent\Product as EloquentProduct;

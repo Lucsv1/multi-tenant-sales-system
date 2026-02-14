@@ -2,29 +2,73 @@
 
 namespace App\Application\Sale\Service;
 
+use App\Application\Sale\DTOs\SaleIndexRequest;
+use App\Application\Sale\DTOs\SaleMapper;
 use App\Application\Sale\DTOs\SaleRequest;
-use App\Infra\Product\Persistence\Eloquent\Product;
+use App\Application\Sale\DTOs\SaleResponse;
+use App\Infra\Product\Persistence\Eloquent\Repositories\ProductRepository;
+use App\Infra\Sale\Persistence\Eloquent\Repositories\SaleRepository;
 use App\Infra\Sale\Persistence\Eloquent\Sale;
-use App\Infra\SaleItem\Persistence\Eloquent\SaleItem;
+use App\Infra\SaleItem\Persistence\Eloquent\Repositories\SaleItemRepository;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class SaleService
 {
-    /**
-     * Criar uma venda com transação atômica
-     *
-     * @throws Exception
-     */
-    public function createSale(SaleRequest $saleRequest): JsonResponse
+    protected SaleRepository $saleRepository;
+    protected SaleItemRepository $saleItemRepository;
+    protected ProductRepository $productRepository;
+    public function __construct(
+        SaleRepository $saleRepository,
+        SaleItemRepository $saleItemRepository,
+        ProductRepository $productRepository,
+    ) {
+        $this->saleItemRepository = $saleItemRepository;
+        $this->saleRepository = $saleRepository;
+        $this->productRepository = $productRepository;
+    }
+
+    public function index(SaleIndexRequest $saleIndexRequest)
+    {
+        return DB::transaction(function () use ($saleIndexRequest) {
+            $query = $this->saleRepository->buildQuery();
+
+            if ($saleIndexRequest->has('status')) {
+                $query->where('status', $saleIndexRequest->status);
+            }
+
+            if ($saleIndexRequest->has('customer_id')) {
+                $query->where('customer_id', $saleIndexRequest->customer_id);
+            }
+
+            if ($saleIndexRequest->has('date_from')) {
+                $query->whereDate('sale_date', '>=', $saleIndexRequest->date_from);
+            }
+
+            if ($saleIndexRequest->has('date_to')) {
+                $query->whereDate('sale_date', '<=', $saleIndexRequest->date_to);
+            }
+
+            $sortBy = $saleIndexRequest->get('sort_by', 'sale_date');
+            $sortOrder = $saleIndexRequest->get('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
+
+            $perPage = $saleIndexRequest->get('per_page', 15);
+            $sales = $query->paginate($perPage);
+
+            return $sales->through(fn($sale) => SaleResponse::fromEntity(SaleMapper::toDomain($sale)));
+        });
+    }
+
+    public function store(SaleRequest $saleRequest): array
     {
         return DB::transaction(function () use ($saleRequest) {
-            // 1. Validar estoque antes de tudo
+
+            $saleRequest->validated();
+
             $this->validateStock($saleRequest['items']);
 
-            // 2. Criar a venda
-            $sale = Sale::create([
+            $sale = $this->saleRepository->create([
                 'customer_id' => $saleRequest['customer_id'] ?? null,
                 'user_id' => auth()->id(),
                 'discount' => $saleRequest['discount'] ?? 0,
@@ -34,17 +78,14 @@ class SaleService
                 'sale_date' => $saleRequest['sale_date'] ?? now(),
             ]);
 
-            // 3. Criar itens e debitar estoque atomicamente
             foreach ($saleRequest['items'] as $itemData) {
-                $product = Product::lockForUpdate()->findOrFail($itemData['product_id']);
+                $product = $this->productRepository->findByIdWithLock($itemData['product_id']);
 
-                // Verificar estoque novamente (lock pessimista)
                 if (!$product->hasStock($itemData['quantity'])) {
                     throw new Exception("Estoque insuficiente para o produto: {$product->name}");
                 }
 
-                // Criar item da venda
-                \App\Infra\SaleItem\Persistence\Eloquent\SaleItem::create([
+                $this->saleItemRepository->create([
                     'sale_id' => $sale->id,
                     'product_id' => $product->id,
                     'product_name' => $product->name,
@@ -53,28 +94,66 @@ class SaleService
                     'discount' => $itemData['discount'] ?? 0,
                 ]);
 
-                // Debitar estoque
-                $product->decrementStock($itemData['quantity']);
+                $this->productRepository->decrementStock($product, $itemData['quantity']);
             }
 
-            // 4. Recalcular totais
             $sale->load('items');
             $sale->calculateTotals();
             $sale->save();
 
-            return $sale->load(['items.product', 'customer', 'user']);
+            $saleDomain = SaleMapper::toDomain($sale->fresh(['items', 'customer', 'user']));
+
+            return [
+                'message' => 'Venda realizada com sucesso',
+                'data' => SaleResponse::fromEntity($saleDomain)->toArray(),
+            ];
         });
     }
 
-    /**
-     * Validar se há estoque suficiente para todos os itens
-     *
-     * @throws Exception
-     */
+    public function show(Sale $sale): array
+    {
+        return DB::transaction(function () use ($sale) {
+            $sale->load(['customer', 'user', 'items.product']);
+
+            $saleDomain = SaleMapper::toDomain($sale);
+
+            return [
+                'data' => SaleResponse::fromEntity($saleDomain)->toArray(),
+            ];
+        });
+    }
+
+    public function cancel(Sale $sale): array
+    {
+        return DB::transaction(function () use ($sale) {
+            if ($sale->status === 'cancelled') {
+                return [
+                    'message' => 'Esta venda já foi cancelada',
+                ];
+            }
+
+            foreach ($sale->items as $item) {
+                $product = $this->productRepository->findByIdWithLock($item->product_id);
+                if ($product) {
+                    $this->productRepository->incrementStock($product, $item->quantity);
+                }
+            }
+
+            $this->saleRepository->update($sale, ['status' => 'cancelled']);
+
+            $saleDomain = SaleMapper::toDomain($sale->fresh(['items', 'customer', 'user']));
+
+            return [
+                'message' => 'Venda cancelada com sucesso',
+                'data' => SaleResponse::fromEntity($saleDomain)->toArray(),
+            ];
+        });
+    }
+
     private function validateStock(array $items): void
     {
         foreach ($items as $item) {
-            $product = Product::find($item['product_id']);
+            $product = $this->productRepository->findById($item['product_id']);
 
             if (!$product) {
                 throw new Exception("Produto não encontrado: ID {$item['product_id']}");
@@ -87,26 +166,5 @@ class SaleService
                 );
             }
         }
-    }
-
-    /**
-     * Cancelar uma venda e devolver o estoque
-     */
-    public function cancelSale(Sale $sale): Sale
-    {
-        return DB::transaction(function () use ($sale) {
-            // Devolver estoque
-            foreach ($sale->items as $item) {
-                $product = Product::lockForUpdate()->find($item->product_id);
-                if ($product) {
-                    $product->incrementStock($item->quantity);
-                }
-            }
-
-            // Atualizar status
-            $sale->update(['status' => 'cancelled']);
-
-            return $sale->fresh();
-        });
     }
 }

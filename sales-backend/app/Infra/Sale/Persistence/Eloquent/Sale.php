@@ -4,7 +4,7 @@ namespace App\Infra\Sale\Persistence\Eloquent;
 
 use App\Infra\Customer\Persistence\Eloquent\Customer;
 use App\Infra\Persistence\Eloquent\Traits\BelongsToTenant;
-use App\Infra\SalesItem\Persistence\Eloquent\SaleItem;
+use App\Infra\SaleItem\Persistence\Eloquent\SaleItem;
 use App\Infra\User\Persistence\Eloquent\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
