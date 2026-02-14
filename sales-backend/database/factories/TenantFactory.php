@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 
 class TenantFactory extends Factory
 {
+    protected $model = \App\Infra\Tenant\Persistence\Eloquent\Tenant::class;
+
     public function definition(): array
     {
         $name = fake()->company();

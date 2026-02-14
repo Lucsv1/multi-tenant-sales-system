@@ -15,6 +15,11 @@ class Tenant extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
+    {
+        return \Database\Factories\TenantFactory::new();
+    }
+
     protected $fillable = [
         'name',
         'slug',

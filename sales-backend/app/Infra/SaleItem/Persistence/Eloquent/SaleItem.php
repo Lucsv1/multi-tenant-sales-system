@@ -12,6 +12,11 @@ class SaleItem extends Model
 {
     use HasFactory;
 
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
+    {
+        return \Database\Factories\SaleItemFactory::new();
+    }
+
     protected $fillable = [
         'sale_id',
         'product_id',

@@ -15,6 +15,7 @@ class ProductRequest extends FormRequest
   public function rules(): array
   {
     return [
+      'tenant_id' => 'required|exists:tenants,id',
       'name' => 'required|string|max:255',
       'description' => 'nullable|string',
       'sku' => 'nullable|string|max:255',
