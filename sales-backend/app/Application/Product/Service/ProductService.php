@@ -43,7 +43,7 @@ class ProductService
             $perPage = $productIndexRequest->get('per_page', 15);
             $products = $query->paginate($perPage);
 
-            return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product)));
+            return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product))->toArray());
         });
     }
 

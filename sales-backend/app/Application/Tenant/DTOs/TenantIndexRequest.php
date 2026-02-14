@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Application\Tenant\DTOs;
 
 use Illuminate\Foundation\Http\FormRequest;

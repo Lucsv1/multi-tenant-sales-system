@@ -2,7 +2,7 @@
 
 namespace App\Infra\Persistence\Eloquent\Traits;
 
-use App\Infra\Persistence\Eloquent\Models\Tenant\Tenant;
+use App\Infra\Tenant\Persistence\Eloquent\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,14 +15,14 @@ trait BelongsToTenant
   {
     // Adiciona o tenant_id automaticamente ao criar
     static::creating(function ($model) {
-      if (!$model->tenant_id && auth()->check()) {
+      if (!$model->tenant_id && auth()->check() && auth()->user()->tenant_id) {
         $model->tenant_id = auth()->user()->tenant_id;
       }
     });
 
-    // Aplica filtro global para isolar por tenant
+    // Aplica filtro global para isolar por tenant (não aplica para SuperAdmin)
     static::addGlobalScope('tenant', function (Builder $builder) {
-      if (auth()->check()) {
+      if (auth()->check() && auth()->user()->tenant_id && !auth()->user()->isSuperAdmin()) {
         $builder->where('tenant_id', auth()->user()->tenant_id);
       }
     });

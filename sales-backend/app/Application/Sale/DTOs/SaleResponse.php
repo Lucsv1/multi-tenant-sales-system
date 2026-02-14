@@ -2,6 +2,7 @@
 
 namespace App\Application\Sale\DTOs;
 
+use App\Application\SaleItem\DTOs\SaleItemResponse;
 use App\Domain\Sale\Entity\Sale;
 
 class SaleResponse
@@ -39,7 +40,7 @@ class SaleResponse
       paymentMethod: $sale->getPaymentMethod(),
       notes: $sale->getNotes(),
       saleDate: $sale->getSaleDate()?->format('Y-m-d H:i:s'),
-      items: [],
+      items: array_map(fn($item) => SaleItemResponse::fromEntity($item), $sale->getItems())
     );
   }
 

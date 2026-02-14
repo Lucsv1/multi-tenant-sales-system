@@ -2,6 +2,8 @@
 
 namespace App\Application\Tenant\DTOs;
 
+use App\Domain\Shared\ValueObject\CpfCnpj;
+use App\Domain\Shared\ValueObject\Email;
 use App\Domain\Tenant\Entity\Tenant;
 
 class TenantResponse
@@ -11,9 +13,9 @@ class TenantResponse
     public readonly string $id,
     public readonly string $name,
     public readonly string $slug,
-    public readonly string $email,
+    public readonly Email $email,
     public readonly string $phone,
-    public readonly string $cnpj,
+    public readonly CpfCnpj $cnpj,
     public readonly bool $isActive,
   ) {
   }
@@ -37,9 +39,9 @@ class TenantResponse
       'id' => $this->id,
       'name' => $this->name,
       'slug' => $this->slug,
-      'email' => $this->email,
+      'email' => $this->email->getValue(),
       'phone' => $this->phone,
-      'cnpj' => $this->cnpj,
+      'cnpj' => $this->cnpj->getValue(),
       'isActive' => $this->isActive,
     ];
   }

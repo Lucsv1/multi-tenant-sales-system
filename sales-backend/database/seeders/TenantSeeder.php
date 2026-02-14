@@ -21,7 +21,7 @@ class TenantSeeder extends Seeder
                 'slug' => 'loja-matriz',
                 'email' => 'contato@lojomatriz.com.br',
                 'phone' => '(11) 99999-9999',
-                'cnpj' => '12.345.678/0001-99',
+                'cnpj' => '38.084.343/0001-54',
                 'is_active' => true,
             ],
             [
@@ -29,7 +29,7 @@ class TenantSeeder extends Seeder
                 'slug' => 'loja-filial-centro',
                 'email' => 'centro@lojafilial.com.br',
                 'phone' => '(11) 98888-8888',
-                'cnpj' => '98.765.432/0001-88',
+                'cnpj' => '45.699.702/0001-43',
                 'is_active' => true,
             ],
             [
@@ -37,7 +37,7 @@ class TenantSeeder extends Seeder
                 'slug' => 'restaurante-sabor',
                 'email' => 'contato@sabor.com.br',
                 'phone' => '(11) 97777-7777',
-                'cnpj' => '11.222.333/0001-44',
+                'cnpj' => '96.406.377/0001-14',
                 'is_active' => true,
             ],
             [
@@ -45,7 +45,7 @@ class TenantSeeder extends Seeder
                 'slug' => 'pizzaria-bella-napoli',
                 'email' => 'contato@bellanapoli.com.br',
                 'phone' => '(21) 96666-6666',
-                'cnpj' => '55.666.777/0001-33',
+                'cnpj' => '54.345.696/0001-17',
                 'is_active' => true,
             ],
             [
@@ -53,7 +53,7 @@ class TenantSeeder extends Seeder
                 'slug' => 'farmacia-vida-saudavel',
                 'email' => 'contato@vidasaudavel.com.br',
                 'phone' => '(85) 95555-5555',
-                'cnpj' => '22.333.444/0001-22',
+                'cnpj' => '98.474.613/0001-65',
                 'is_active' => true,
             ],
             [
@@ -61,7 +61,7 @@ class TenantSeeder extends Seeder
                 'slug' => 'boutique-elegance',
                 'email' => 'contato@elegance.com.br',
                 'phone' => '(11) 94444-4444',
-                'cnpj' => '33.444.555/0001-11',
+                'cnpj' => '31.382.574/0001-03',
                 'is_active' => false,
             ],
         ];

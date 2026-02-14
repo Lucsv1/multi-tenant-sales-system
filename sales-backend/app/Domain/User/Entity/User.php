@@ -12,7 +12,7 @@ class User
   private int $tenant_id;
   private string $name;
   private Email $email;
-  private string $eamil_verified_at;
+  private string $email_verified_at;
   private string $password;
   private bool $isActive;
 
@@ -21,7 +21,7 @@ class User
     int $tenant_id,
     string $name,
     Email $email,
-    string $eamil_verified_at,
+    string $email_verified_at,
     string $password,
     bool $isActive
   ) {
@@ -29,7 +29,7 @@ class User
     $this->tenant_id = $tenant_id;
     $this->name = $name;
     $this->email = $email;
-    $this->eamil_verified_at = $eamil_verified_at;
+    $this->email_verified_at = $email_verified_at;
     $this->password = $password;
     $this->isActive = $isActive;
   }
@@ -60,9 +60,9 @@ class User
   /**
    * Get the value of eamil_verified_at
    */
-  public function getEamilVerifiedAt(): string
+  public function getEmailVerifiedAt(): string
   {
-    return $this->eamil_verified_at;
+    return $this->email_verified_at;
   }
 
   /**

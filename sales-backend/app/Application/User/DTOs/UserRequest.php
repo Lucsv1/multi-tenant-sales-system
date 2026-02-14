@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Auth\DTOs;
+namespace App\Application\User\DTOs;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -16,8 +16,9 @@ class UserRequest extends FormRequest
   {
     return [
       'name' => 'required|string|max:255',
-      'email' => 'required|email|',
-      'password' => 'required|string|min:8|confirmed'
+      'email' => 'required|email',
+      'password' => 'required|string|min:8|confirmed',
+      'role' => 'nullable|string|exists:roles,name'
     ];
   }
 
