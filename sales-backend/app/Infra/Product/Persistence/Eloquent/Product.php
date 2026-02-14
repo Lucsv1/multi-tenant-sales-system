@@ -13,6 +13,11 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes, BelongsToTenant;
 
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
+    {
+        return \Database\Factories\ProductFactory::new();
+    }
+
     protected $fillable = [
         'tenant_id',
         'name',

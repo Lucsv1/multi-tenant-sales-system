@@ -20,6 +20,11 @@ class User extends Authenticatable
     protected $table = 'users';
     protected $guard_name = 'api';
 
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
+    {
+        return \Database\Factories\UserFactory::new();
+    }
+
     protected $fillable = [
         'tenant_id',
         'name',

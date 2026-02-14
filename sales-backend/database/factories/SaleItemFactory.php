@@ -2,22 +2,22 @@
 
 namespace Database\Factories;
 
+use App\Infra\SaleItem\Persistence\Eloquent\SaleItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SaleItem>
- */
 class SaleItemFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = SaleItem::class;
+
     public function definition(): array
     {
         return [
-            //
+            'sale_id' => null,
+            'product_id' => 1,
+            'product_name' => 'Test Product',
+            'price' => 100.00,
+            'quantity' => 1,
+            'discount' => 0,
         ];
     }
 }
