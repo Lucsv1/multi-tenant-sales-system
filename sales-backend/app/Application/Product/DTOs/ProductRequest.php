@@ -26,4 +26,11 @@ class ProductRequest extends FormRequest
     ];
   }
 
+  public function messages(): array
+  {
+    return [
+      'sku.unique' => 'Este SKU já está em uso neste estabelecimento.',
+    ];
+  }
+
 }
