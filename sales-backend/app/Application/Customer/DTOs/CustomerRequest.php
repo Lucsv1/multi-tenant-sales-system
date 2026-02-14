@@ -47,4 +47,11 @@ class CustomerRequest extends FormRequest
     ];
   }
 
+  public function messages(): array
+  {
+    return [
+      'cpf_cnpj.unique' => 'Este CPF/CNPJ já está cadastrado neste estabelecimento.',
+    ];
+  }
+
 }

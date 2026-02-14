@@ -16,9 +16,16 @@ class UserRequest extends FormRequest
   {
     return [
       'name' => 'required|string|max:255',
-      'email' => 'required|email',
+      'email' => 'required|email|unique:users,email,NULL,id,tenant_id,' . ($this->tenant_id ?? ''),
       'password' => 'required|string|min:8|confirmed',
       'role' => 'nullable|string|exists:roles,name'
+    ];
+  }
+
+  public function messages(): array
+  {
+    return [
+      'email.unique' => 'Este email já está em uso neste estabelecimento.',
     ];
   }
 
