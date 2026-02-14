@@ -1,0 +1,621 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sales System API",
+    "description": "API para Sistema de Gestão de Vendas Multi-Tenant",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local Server"
+    }
+  ],
+  "security": [
+    {
+      "sanctum": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Enter token in format (Bearer <token>)"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "tenant_id": {"type": "integer"},
+          "is_active": {"type": "boolean"}
+        }
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "slug": {"type": "string"},
+          "email": {"type": "string"},
+          "cnpj": {"type": "string"},
+          "phone": {"type": "string"},
+          "is_active": {"type": "boolean"}
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "sku": {"type": "string"},
+          "description": {"type": "string"},
+          "price": {"type": "number"},
+          "cost": {"type": "number"},
+          "stock": {"type": "integer"},
+          "min_stock": {"type": "integer"},
+          "is_active": {"type": "boolean"}
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "email": {"type": "string"},
+          "cpf_cnpj": {"type": "string"},
+          "phone": {"type": "string"},
+          "address": {"type": "string"},
+          "is_active": {"type": "boolean"}
+        }
+      },
+      "Sale": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "sale_number": {"type": "string"},
+          "customer_id": {"type": "integer"},
+          "user_id": {"type": "integer"},
+          "subtotal": {"type": "number"},
+          "discount": {"type": "number"},
+          "total": {"type": "number"},
+          "status": {"type": "string", "enum": ["completed", "cancelled"]},
+          "payment_method": {"type": "string"},
+          "notes": {"type": "string"},
+          "sale_date": {"type": "string", "format": "date-time"}
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string"}
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["tenant_id", "name", "email", "password"],
+        "properties": {
+          "tenant_id": {"type": "integer"},
+          "name": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string"},
+          "password_confirmation": {"type": "string"}
+        }
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "message": {"type": "string"},
+          "token": {"type": "string"},
+          "token_type": {"type": "string"}
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register new user",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/RegisterRequest"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/TokenResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Login user",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/LoginRequest"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/TokenResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Logout user",
+        "tags": ["Authentication"],
+        "security": [{"sanctum": []}],
+        "responses": {
+          "200": {
+            "description": "Logout successful"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "Get current user",
+        "tags": ["Authentication"],
+        "security": [{"sanctum": []}],
+        "responses": {
+          "200": {
+            "description": "Current user data"
+          }
+        }
+      }
+    },
+    "/api/tenant": {
+      "get": {
+        "summary": "List all tenants",
+        "tags": ["Tenants"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "search", "in": "query", "schema": {"type": "string"}},
+          {"name": "is_active", "in": "query", "schema": {"type": "boolean"}},
+          {"name": "per_page", "in": "query", "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tenants"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new tenant",
+        "tags": ["Tenants"],
+        "security": [{"sanctum": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Tenant"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tenant created"
+          }
+        }
+      }
+    },
+    "/api/tenant/{tenant}": {
+      "get": {
+        "summary": "Get tenant by ID",
+        "tags": ["Tenants"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "tenant", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant data"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update tenant",
+        "tags": ["Tenants"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "tenant", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Tenant"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tenant updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete tenant",
+        "tags": ["Tenants"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "tenant", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant deleted"
+          }
+        }
+      }
+    },
+    "/api/product": {
+      "get": {
+        "summary": "List all products",
+        "tags": ["Products"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "search", "in": "query", "schema": {"type": "string"}},
+          {"name": "is_active", "in": "query", "schema": {"type": "boolean"}},
+          {"name": "per_page", "in": "query", "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "List of products"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new product",
+        "tags": ["Products"],
+        "security": [{"sanctum": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Product"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product created"
+          }
+        }
+      }
+    },
+    "/api/product/{product}": {
+      "get": {
+        "summary": "Get product by ID",
+        "tags": ["Products"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "product", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Product data"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update product",
+        "tags": ["Products"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "product", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Product"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete product",
+        "tags": ["Products"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "product", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted"
+          }
+        }
+      }
+    },
+    "/api/customer": {
+      "get": {
+        "summary": "List all customers",
+        "tags": ["Customers"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "search", "in": "query", "schema": {"type": "string"}},
+          {"name": "is_active", "in": "query", "schema": {"type": "boolean"}},
+          {"name": "per_page", "in": "query", "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "List of customers"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new customer",
+        "tags": ["Customers"],
+        "security": [{"sanctum": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Customer"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Customer created"
+          }
+        }
+      }
+    },
+    "/api/customer/{customer}": {
+      "get": {
+        "summary": "Get customer by ID",
+        "tags": ["Customers"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "customer", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer data"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update customer",
+        "tags": ["Customers"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "customer", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Customer"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Customer updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete customer",
+        "tags": ["Customers"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "customer", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer deleted"
+          }
+        }
+      }
+    },
+    "/api/sale": {
+      "get": {
+        "summary": "List all sales",
+        "tags": ["Sales"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "status", "in": "query", "schema": {"type": "string"}},
+          {"name": "customer_id", "in": "query", "schema": {"type": "integer"}},
+          {"name": "date_from", "in": "query", "schema": {"type": "string", "format": "date"}},
+          {"name": "date_to", "in": "query", "schema": {"type": "string", "format": "date"}},
+          {"name": "per_page", "in": "query", "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "List of sales"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new sale",
+        "tags": ["Sales"],
+        "security": [{"sanctum": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Sale"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sale created"
+          }
+        }
+      }
+    },
+    "/api/sale/{sale}": {
+      "get": {
+        "summary": "Get sale by ID",
+        "tags": ["Sales"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "sale", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Sale data"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Cancel sale",
+        "tags": ["Sales"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "sale", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Sale cancelled"
+          }
+        }
+      }
+    },
+    "/api/sale/report": {
+      "get": {
+        "summary": "Generate sales report",
+        "tags": ["Sales"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "status", "in": "query", "schema": {"type": "string"}},
+          {"name": "date_from", "in": "query", "schema": {"type": "string", "format": "date"}},
+          {"name": "date_to", "in": "query", "schema": {"type": "string", "format": "date"}},
+          {"name": "customer_id", "in": "query", "schema": {"type": "integer"}},
+          {"name": "cached", "in": "query", "schema": {"type": "boolean"}},
+          {"name": "send_email", "in": "query", "schema": {"type": "boolean"}},
+          {"name": "email", "in": "query", "schema": {"type": "string", "format": "email"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Sales report generated"
+          }
+        }
+      }
+    },
+    "/api/user": {
+      "get": {
+        "summary": "List all users",
+        "tags": ["Users"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "search", "in": "query", "schema": {"type": "string"}},
+          {"name": "is_active", "in": "query", "schema": {"type": "boolean"}},
+          {"name": "per_page", "in": "query", "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new user",
+        "tags": ["Users"],
+        "security": [{"sanctum": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/User"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created"
+          }
+        }
+      }
+    },
+    "/api/user/{user}": {
+      "get": {
+        "summary": "Get user by ID",
+        "tags": ["Users"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "user", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "User data"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user",
+        "tags": ["Users"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "user", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/User"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user",
+        "tags": ["Users"],
+        "security": [{"sanctum": []}],
+        "parameters": [
+          {"name": "user", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted"
+          }
+        }
+      }
+    }
+  }
+}

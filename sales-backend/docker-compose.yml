@@ -12,6 +12,7 @@ services:
     volumes:
       - ./:/var/www
       - ./docker/etc/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./docker/etc/php-fpm.d:/usr/local/etc/php-fpm.d
     networks:
       - sales-network
     depends_on:

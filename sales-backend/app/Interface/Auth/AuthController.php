@@ -9,6 +9,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @OA\Info(
+ *     title="Sales System API",
+ *     version="1.0.0",
+ *     description="API para Sistema de Gestão de Vendas Multi-Tenant"
+ * )
+ *
+ * @OA\Server(
+ *     url="http://localhost:8000",
+ *     description="Local Server"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="sanctum",
+ *     type="apiKey",
+ *     in="header",
+ *     name="Authorization",
+ *     description="Enter token in format (Bearer <token>)"
+ * )
+ */
 class AuthController extends Controller
 {
     /**
