@@ -72,6 +72,13 @@ class RoleSeeder extends Seeder
       'updated_at' => now(),
     ]);
 
+    $superAdminRoleId = DB::table('roles')->insertGetId([
+      'name' => 'SuperAdmin',
+      'guard_name' => 'api',
+      'created_at' => now(),
+      'updated_at' => now(),
+    ]);
+
     $vendedorRoleId = DB::table('roles')->insertGetId([
       'name' => 'Vendedor',
       'guard_name' => 'api',
@@ -90,6 +97,14 @@ class RoleSeeder extends Seeder
       DB::table('role_has_permissions')->insert([
         'permission_id' => $permissionId,
         'role_id' => $adminRoleId,
+      ]);
+    }
+
+    // SuperAdmin tem TODAS as permissões (igual ao Admin)
+    foreach ($allPermissions as $permissionId) {
+      DB::table('role_has_permissions')->insert([
+        'permission_id' => $permissionId,
+        'role_id' => $superAdminRoleId,
       ]);
     }
 
@@ -120,8 +135,9 @@ class RoleSeeder extends Seeder
     $this->command->info('');
     $this->command->info('📋 Resumo:');
     $this->command->info('   - ' . count($permissions) . ' permissions criadas');
-    $this->command->info('   - 2 roles criadas (Admin, Vendedor)');
+    $this->command->info('   - 3 roles criadas (Admin, SuperAdmin, Vendedor)');
     $this->command->info('   - Admin: ' . $allPermissions->count() . ' permissions');
+    $this->command->info('   - SuperAdmin: ' . $allPermissions->count() . ' permissions');
     $this->command->info('   - Vendedor: ' . count($vendedorPermissions) . ' permissions');
   }
 }

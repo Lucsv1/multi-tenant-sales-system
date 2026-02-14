@@ -56,7 +56,7 @@ class SaleService
             $perPage = $saleIndexRequest->get('per_page', 15);
             $sales = $query->paginate($perPage);
 
-            return $sales->through(fn($sale) => SaleResponse::fromEntity(SaleMapper::toDomain($sale)));
+            return $sales->through(fn($sale) => SaleResponse::fromEntity(SaleMapper::toDomain($sale))->toArray());
         });
     }
 

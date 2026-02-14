@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_active',
+        'is_super_admin'
     ];
 
     protected $hidden = [
@@ -37,6 +38,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'is_super_admin' => 'boolean'
     ];
 
     /**
@@ -46,7 +48,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Tenant::class);
     }
-
 
     /**
      * Relacionamento com Sales (vendas realizadas)
@@ -61,7 +62,12 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->hasRole('Admin da Loja');
+        return $this->hasRole('Admin');
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_super_admin === true || $this->hasRole('SuperAdmin');
     }
 
 }

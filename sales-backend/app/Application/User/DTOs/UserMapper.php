@@ -15,7 +15,7 @@ class UserMapper
       tenant_id: $eloquent->tenant_id,
       name: $eloquent->name,
       email: new Email($eloquent->email), // usando o ValueObject
-      eamil_verified_at: $eloquent->email_verified_at ?? '',
+      email_verified_at: $eloquent->email_verified_at ?? '',
       password: $eloquent->password,
       isActive: (bool) $eloquent->is_active,
     );

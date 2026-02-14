@@ -2,22 +2,29 @@
 
 namespace App\Interface\User\Http\Controllers;
 
-use App\Interface\Shared\Http\Controllers\Controller;
+
+use App\Application\User\DTOs\UserIndexRequest;
+use App\Application\User\DTOs\UserRequest;
+use App\Application\User\Service\UserService;
 use App\Infra\User\Persistence\Eloquent\User;
+use App\Interface\Shared\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index(): JsonResponse
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    public function index(UserIndexRequest $userRequest): JsonResponse
     {
         try {
-            $user = User::all();
-            return response()->json([
-                'message' => 'Usuario encontrado',
-                'data' => $user,
-            ]);
+            $user = $this->userService->index($userRequest);
+            return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Erro ao listar usuarios',
@@ -26,21 +33,11 @@ class UserController extends Controller
         }
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(UserRequest $userRequest): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
-
-            $user = User::create($validated);
-
-            return response()->json([
-                'message' => 'Usuario criado com sucesso',
-                'data' => $user,
-            ], 201);
+            $user = $this->userService->store($userRequest);
+            return response()->json($user, 201);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Erro ao criar usuario',
@@ -52,7 +49,8 @@ class UserController extends Controller
     public function show(User $user): JsonResponse
     {
         try {
-            return response()->json(['data' => $user]);
+            $user = $this->userService->show($user);
+            return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Erro ao buscar usuario',
@@ -61,21 +59,11 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request, User $user): JsonResponse
+    public function update(UserRequest $userRequest, User $user): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
-
-            $user->update($validated);
-
-            return response()->json([
-                'message' => 'Usuario atualizado com sucesso',
-                'data' => $user->fresh(),
-            ]);
+            $user = $this->userService->update($userRequest, $user);
+            return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Erro ao atualizar usuario',
@@ -87,10 +75,8 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         try {
-            $user->delete();
-            return response()->json([
-                'message' => 'Usuario removido com sucesso',
-            ]);
+            $user = $this->userService->destroy($user);
+            return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Erro ao remover usuario',

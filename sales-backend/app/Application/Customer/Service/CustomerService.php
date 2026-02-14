@@ -47,7 +47,7 @@ class CustomerService
             $perPage = $customerRequest->get('per_page', 15);
             $customers = $query->paginate($perPage);
 
-            return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer)));
+            return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer))->toArray());
         });
     }
 
