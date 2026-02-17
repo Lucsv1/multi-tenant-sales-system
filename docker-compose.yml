@@ -19,6 +19,22 @@ services:
       - mysql
       - redis
 
+  # Frontend Quasar
+  frontend:
+    build:
+      context: ./sales-frontend
+      dockerfile: Dockerfile
+    container_name: sales-frontend
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./sales-frontend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - sales-network
+
   # Nginx
   nginx:
     image: nginx:alpine
