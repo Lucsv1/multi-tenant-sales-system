@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Infra\Sale\Queue\Jobs;
 
 use App\Application\Sale\Service\SalesReportService;
 use Illuminate\Bus\Queueable;

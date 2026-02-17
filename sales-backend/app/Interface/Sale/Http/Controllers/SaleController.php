@@ -6,8 +6,8 @@ use App\Application\Sale\DTOs\SaleIndexRequest;
 use App\Application\Sale\DTOs\SaleRequest;
 use App\Application\Sale\Service\SaleService;
 use App\Application\Sale\Service\SalesReportService;
-use App\Jobs\GenerateSalesReportJob;
 use App\Infra\Sale\Persistence\Eloquent\Sale;
+use App\Infra\Sale\Queue\Jobs\GenerateSalesReportJob;
 use App\Interface\Shared\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -87,7 +87,7 @@ class SaleController extends Controller
             $filters = array_filter($filters, fn($value) => $value !== null && $value !== '');
 
             $cacheKey = "sales_report_{$tenantId}_" . md5(json_encode($filters));
-            
+
             if ($request->has('cached') && Cache::has($cacheKey)) {
                 return response()->json([
                     'message' => 'Relatório recuperado do cache',
@@ -100,18 +100,25 @@ class SaleController extends Controller
 
             Cache::put($cacheKey, $reportData, now()->addMinutes(30));
 
-            if ($request->has('send_email') && $request->email) {
+            if ($request->has('send_email')) {
+                $email = $user->email;
+
+                if ($request->filled('email')) {
+                    $email = $request->email;
+                }
+
                 GenerateSalesReportJob::dispatch(
                     $tenantId,
                     $user->id,
                     $filters,
-                    $request->email
+                    $email
                 );
 
                 return response()->json([
                     'message' => 'Relatório sendo gerado e será enviado por e-mail',
                     'data' => $reportData,
                     'email_queued' => true,
+                    'email_sent_to' => $email,
                 ]);
             }
 

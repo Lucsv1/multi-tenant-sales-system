@@ -77,7 +77,7 @@ class SalesReportService
                     </ul>
                     <p>O relatório está disponível em anexo.</p>
                 ')
-                ->attach(storage_path('app/' . $pdfPath));
+                ->attach(storage_path('app/private/' . $pdfPath));
         });
     }
 }
