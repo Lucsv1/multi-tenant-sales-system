@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             SuperAdminUserSeeder::class,
             AdminUserSeeder::class,
+            ProductSeeder::class,
+            CustomerSeeder::class,
         ]);
     }
 }
