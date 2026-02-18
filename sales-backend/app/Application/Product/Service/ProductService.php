@@ -8,6 +8,7 @@ use App\Application\Product\DTOs\ProductResponse;
 use App\Application\Product\DTOs\ProductMapper;
 use App\Infra\Product\Persistence\Eloquent\Product;
 use App\Infra\Product\Persistence\Eloquent\Repositories\ProductRepository;
+use App\Application\Support\CacheHelper;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
@@ -21,29 +22,33 @@ class ProductService
 
     public function index(ProductIndexRequest $productIndexRequest)
     {
-        return DB::transaction(function () use ($productIndexRequest) {
-            $query = $this->productRepository->buildQuery();
+        $cacheKey = 'products:index:' . md5(json_encode($productIndexRequest->all()));
 
-            if ($productIndexRequest->has('search')) {
-                $search = $productIndexRequest->search;
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%");
-                });
-            }
+        return CacheHelper::remember($cacheKey, 300, function () use ($productIndexRequest) {
+            return DB::transaction(function () use ($productIndexRequest) {
+                $query = $this->productRepository->buildQuery();
 
-            if ($productIndexRequest->has('is_active')) {
-                $query->where('is_active', $productIndexRequest->boolean('is_active'));
-            }
+                if ($productIndexRequest->has('search')) {
+                    $search = $productIndexRequest->search;
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('sku', 'like', "%{$search}%");
+                    });
+                }
 
-            $sortBy = $productIndexRequest->get('sort_by', 'created_at');
-            $sortOrder = $productIndexRequest->get('sort_order', 'desc');
-            $query->orderBy($sortBy, $sortOrder);
+                if ($productIndexRequest->has('is_active')) {
+                    $query->where('is_active', $productIndexRequest->boolean('is_active'));
+                }
 
-            $perPage = $productIndexRequest->get('per_page', 15);
-            $products = $query->paginate($perPage);
+                $sortBy = $productIndexRequest->get('sort_by', 'created_at');
+                $sortOrder = $productIndexRequest->get('sort_order', 'desc');
+                $query->orderBy($sortBy, $sortOrder);
 
-            return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product))->toArray());
+                $perPage = $productIndexRequest->get('per_page', 15);
+                $products = $query->paginate($perPage);
+
+                return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product))->toArray());
+            });
         });
     }
 
@@ -51,6 +56,8 @@ class ProductService
     {
         return DB::transaction(function () use ($productRequest) {
             $product = $this->productRepository->create($productRequest->validated());
+
+            CacheHelper::invalidateProducts();
 
             $productDomain = ProductMapper::toDomain($product);
 
@@ -76,6 +83,9 @@ class ProductService
     {
         return DB::transaction(function () use ($productRequest, $product) {
             $product = $this->productRepository->update($product, $productRequest->validated());
+            
+            CacheHelper::invalidateProducts();
+
             $productDomain = ProductMapper::toDomain($product);
 
             return [
@@ -89,6 +99,8 @@ class ProductService
     {
         return DB::transaction(function () use ($product) {
             $this->productRepository->delete($product);
+
+            CacheHelper::invalidateProducts();
 
             return [
                 'message' => 'Produto removido com sucesso',

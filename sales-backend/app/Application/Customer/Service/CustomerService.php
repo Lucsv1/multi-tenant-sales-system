@@ -6,9 +6,9 @@ use App\Application\Customer\DTOs\CustomerIndexRequest;
 use App\Application\Customer\DTOs\CustomerMapper;
 use App\Application\Customer\DTOs\CustomerRequest;
 use App\Application\Customer\DTOs\CustomerResponse;
-use App\Domain\Customer\Repositories\CustomerRepositoryInterface;
 use App\Infra\Customer\Persistence\Eloquent\Customer;
 use App\Infra\Customer\Persistence\Eloquent\Repositories\CustomerRepository;
+use App\Application\Support\CacheHelper;
 use Illuminate\Support\Facades\DB;
 
 class CustomerService
@@ -24,30 +24,34 @@ class CustomerService
 
     public function index(CustomerIndexRequest $customerRequest)
     {
-        return DB::transaction(function () use ($customerRequest) {
-            $query = $this->customerRepository->buildQuery();
+        $cacheKey = 'customers:index:' . md5(json_encode($customerRequest->all()));
 
-            if ($customerRequest->has('search')) {
-                $search = $customerRequest->search;
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('cpf_cnpj', 'like', "%{$search}%");
-                });
-            }
+        return CacheHelper::remember($cacheKey, 300, function () use ($customerRequest) {
+            return DB::transaction(function () use ($customerRequest) {
+                $query = $this->customerRepository->buildQuery();
 
-            if ($customerRequest->has('is_active')) {
-                $query->where('is_active', $customerRequest->boolean('is_active'));
-            }
+                if ($customerRequest->has('search')) {
+                    $search = $customerRequest->search;
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('cpf_cnpj', 'like', "%{$search}%");
+                    });
+                }
 
-            $sortBy = $customerRequest->get('sort_by', 'created_at');
-            $sortOrder = $customerRequest->get('sort_order', 'desc');
-            $query->orderBy($sortBy, $sortOrder);
+                if ($customerRequest->has('is_active')) {
+                    $query->where('is_active', $customerRequest->boolean('is_active'));
+                }
 
-            $perPage = $customerRequest->get('per_page', 15);
-            $customers = $query->paginate($perPage);
+                $sortBy = $customerRequest->get('sort_by', 'created_at');
+                $sortOrder = $customerRequest->get('sort_order', 'desc');
+                $query->orderBy($sortBy, $sortOrder);
 
-            return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer))->toArray());
+                $perPage = $customerRequest->get('per_page', 15);
+                $customers = $query->paginate($perPage);
+
+                return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer))->toArray());
+            });
         });
     }
 
@@ -55,6 +59,8 @@ class CustomerService
     {
         return DB::transaction(function () use ($customerRequest) {
             $customer = $this->customerRepository->create($customerRequest->validated());
+
+            CacheHelper::invalidateCustomers();
 
             $customerDomain = CustomerMapper::toDomain($customer);
 
@@ -80,6 +86,9 @@ class CustomerService
     {
         return DB::transaction(function () use ($customerRequest, $customer) {
             $customer = $this->customerRepository->update($customer, $customerRequest->validated());
+
+            CacheHelper::invalidateCustomers();
+
             $customerDomain = CustomerMapper::toDomain($customer);
 
             return [
@@ -93,6 +102,8 @@ class CustomerService
     {
         return DB::transaction(function () use ($customer) {
             $this->customerRepository->delete($customer);
+
+            CacheHelper::invalidateCustomers();
 
             return [
                 'message' => 'Customer removido com sucesso',
