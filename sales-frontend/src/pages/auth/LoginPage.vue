@@ -57,16 +57,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from 'src/composables/useAuth'
+import { useLogin } from 'src/composables/pages/useLogin'
 
 const router = useRouter()
-const { login, getUser } = useAuth()
-
-const email = ref('')
-const password = ref('')
-const isPwd = ref(true)
-const loading = ref(false)
-const error = ref('')
+const { email, password, isPwd, loading, error, onSubmit } = useLogin()
 
 onMounted(() => {
   const token = localStorage.getItem('token')
@@ -74,20 +68,6 @@ onMounted(() => {
     router.push('/')
   }
 })
-
-const onSubmit = async () => {
-  loading.value = true
-  error.value = ''
-  
-  try {
-    await login(email.value, password.value)
-    router.push('/')
-  } catch (e) {
-    error.value = e.message || 'Erro ao fazer login'
-  } finally {
-    loading.value = false
-  }
-}
 </script>
 
 <style scoped>

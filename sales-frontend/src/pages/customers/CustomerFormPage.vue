@@ -112,77 +112,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useQuasar } from 'quasar'
-import { useCustomers } from 'src/composables/useCustomers'
+import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useCustomerForm } from 'src/composables/pages/useCustomerForm'
 
 const route = useRoute()
-const router = useRouter()
-const $q = useQuasar()
-const { getCustomer, createCustomer, updateCustomer } = useCustomers()
-
-const isEditing = ref(false)
-const loading = ref(false)
-const customerId = ref(null)
-
-const form = ref({
-  name: '',
-  email: '',
-  phone: '',
-  cpf_cnpj: '',
-  zip_code: '',
-  address: '',
-  number: '',
-  complement: '',
-  neighborhood: '',
-  city: '',
-  state: '',
-  is_active: true
-})
-
-const onSubmit = async () => {
-  loading.value = true
-  try {
-    if (isEditing.value) {
-      await updateCustomer(customerId.value, form.value)
-      $q.notify({ color: 'positive', message: 'Cliente atualizado com sucesso' })
-    } else {
-      await createCustomer(form.value)
-      $q.notify({ color: 'positive', message: 'Cliente criado com sucesso' })
-    }
-    router.push('/customers')
-  } catch (error) {
-    $q.notify({ color: 'negative', message: error.message || 'Erro ao salvar cliente' })
-  } finally {
-    loading.value = false
-  }
-}
-
-const loadCustomer = async () => {
-  if (customerId.value) {
-    try {
-      const response = await getCustomer(customerId.value)
-      const customerData = response.data || response
-      form.value = {
-        name: customerData.name,
-        email: customerData.email,
-        phone: customerData.phone,
-        cpf_cnpj: customerData.cpfCnpj,
-        zip_code: customerData.zipCode,
-        address: customerData.address,
-        number: customerData.number,
-        complement: customerData.complement,
-        neighborhood: customerData.neighborhood,
-        city: customerData.city,
-        state: customerData.state,
-        is_active: customerData.isActive
-      }
-    } catch (error) {
-      $q.notify({ color: 'negative', message: 'Erro ao carregar cliente' })
-    }
-  }
-}
+const { isEditing, customerId, loading, form, onSubmit, loadCustomer } = useCustomerForm()
 
 onMounted(() => {
   if (route.params.id) {

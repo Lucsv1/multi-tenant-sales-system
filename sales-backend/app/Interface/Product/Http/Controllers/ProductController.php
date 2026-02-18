@@ -26,7 +26,7 @@ class ProductController extends Controller
             return response()->json($products);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao listar produtos',
+                'message' => 'Erro ao listar produtos: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -39,7 +39,7 @@ class ProductController extends Controller
             return response()->json($products, 201);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao criar produto',
+                'message' => 'Erro ao criar produto:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -52,7 +52,7 @@ class ProductController extends Controller
             return response()->json($product);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao buscar produto',
+                'message' => 'Erro ao buscar produto:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -65,7 +65,7 @@ class ProductController extends Controller
             return response()->json($product);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao atualizar produto',
+                'message' => 'Erro ao atualizar produto:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -78,7 +78,7 @@ class ProductController extends Controller
             return response()->json($product);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao remover produto',
+                'message' => 'Erro ao remover produto:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }

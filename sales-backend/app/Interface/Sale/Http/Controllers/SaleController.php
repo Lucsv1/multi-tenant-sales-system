@@ -32,7 +32,7 @@ class SaleController extends Controller
             return response()->json($sales);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao listar vendas',
+                'message' => 'Erro ao listar vendas:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -45,7 +45,7 @@ class SaleController extends Controller
             return response()->json($sale, 201);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao criar venda',
+                'message' => 'Erro ao criar venda: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -58,7 +58,7 @@ class SaleController extends Controller
             return response()->json($result);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao buscar venda',
+                'message' => 'Erro ao buscar venda: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -71,7 +71,7 @@ class SaleController extends Controller
             return response()->json($result);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao cancelar venda',
+                'message' => 'Erro ao cancelar venda: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -128,7 +128,7 @@ class SaleController extends Controller
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao gerar relatório',
+                'message' => 'Erro ao gerar relatório' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }

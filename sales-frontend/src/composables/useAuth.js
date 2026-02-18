@@ -1,8 +1,19 @@
 import { api } from './useApi'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const user = ref(null)
 const isAuthenticated = ref(false)
+
+const loadUserFromStorage = () => {
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    const parsed = JSON.parse(userData)
+    user.value = parsed
+    isAuthenticated.value = true
+    return parsed
+  }
+  return null
+}
 
 export function useAuth() {
   const login = async (email, password) => {
@@ -28,16 +39,11 @@ export function useAuth() {
   }
 
   const getUser = () => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      user.value = JSON.parse(userData)
-      isAuthenticated.value = true
-    }
-    return user.value
+    return loadUserFromStorage()
   }
 
   const hasRole = (role) => {
-    const userData = getUser()
+    const userData = user.value || loadUserFromStorage()
     if (!userData) return false
     
     if (role === 'SuperAdmin') {
@@ -54,7 +60,7 @@ export function useAuth() {
   }
 
   const canAccess = (roles = []) => {
-    const userData = getUser()
+    const userData = user.value || loadUserFromStorage()
     if (!userData) return false
     
     if (userData.is_super_admin) return true

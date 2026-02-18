@@ -7,7 +7,7 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/dashboard/DashboardPage.vue') },
+      { path: '', component: () => import('pages/auth/AuthRedirectPage.vue') },
       { path: 'customers', component: () => import('pages/customers/CustomerListPage.vue') },
       { path: 'customers/create', component: () => import('pages/customers/CustomerFormPage.vue') },
       { path: 'customers/:id/edit', component: () => import('pages/customers/CustomerFormPage.vue') },
