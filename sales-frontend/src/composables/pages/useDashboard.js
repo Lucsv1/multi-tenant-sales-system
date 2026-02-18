@@ -62,9 +62,11 @@ export function useDashboard() {
   const loadDashboard = async () => {
     try {
       const salesResponse = await getSales({ per_page: 100 })
+
       const salesData = salesResponse.data || salesResponse
       const sales = salesData.data || salesData
-      
+
+
       const today = new Date().toISOString().split('T')[0]
       const todaySales = sales.filter(s => s.saleDate && s.saleDate.startsWith(today))
 

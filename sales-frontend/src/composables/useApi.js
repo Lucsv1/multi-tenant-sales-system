@@ -57,12 +57,14 @@ async function handleResponse(response) {
   const data = await response.json()
   
   if (!response.ok) {
+    console.error('API Error:', response.status, data)
     throw new ApiError(data.message || 'Erro na requisição', {
       status: response.status,
       data: data
     })
   }
   
+  console.log('API Success:', response.status, data)
   return data
 }
 

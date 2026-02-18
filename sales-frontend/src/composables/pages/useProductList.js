@@ -76,7 +76,7 @@ export function useProductList() {
         $q.notify({ color: 'positive', message: 'Produto removido com sucesso' })
         loadProducts()
       } catch (error) {
-        $q.notify({ color: 'negative', message: 'Erro ao remover produto' })
+        $q.notify({ color: 'negative', message: error.message || 'Erro ao remover produto' })
       }
     })
   }

@@ -1,6 +1,7 @@
 import { api } from './useApi'
 
 export function useSales() {
+
   const getSales = async (params = {}) => {
     const filteredParams = Object.fromEntries(
       Object.entries(params).filter(([_, v]) => v !== null && v !== '' && v !== 'null')

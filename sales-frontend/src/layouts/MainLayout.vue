@@ -31,7 +31,7 @@
       <q-list>
         <q-item-label header>Menu</q-item-label>
 
-        <q-item v-if="!isSuperAdmin" clickable to="/" exact>
+        <q-item v-if="!isSuperAdmin" clickable to="/dashboard" exact>
           <q-item-section  avatar>
             <q-icon name="dashboard" />
           </q-item-section>

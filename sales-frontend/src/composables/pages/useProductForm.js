@@ -53,8 +53,11 @@ export function useProductForm() {
   const loadProduct = async () => {
     if (productId.value) {
       try {
+        console.log('Loading product:', productId.value)
         const response = await getProduct(productId.value)
+        console.log('Product response:', response)
         const productData = response.data || response
+        console.log('Product data:', productData)
         form.value = {
           name: productData.name,
           description: productData.description,
@@ -65,7 +68,9 @@ export function useProductForm() {
           min_stock: productData.minStock,
           is_active: productData.isActive
         }
+        console.log('Form updated:', form.value)
       } catch (error) {
+        console.error('Error loading product:', error)
         $q.notify({ color: 'negative', message: 'Erro ao carregar produto' })
       }
     }

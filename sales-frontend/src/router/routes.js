@@ -8,6 +8,7 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/auth/AuthRedirectPage.vue') },
+      { path: 'dashboard', component: () => import('pages/dashboard/DashboardPage.vue') },
       { path: 'customers', component: () => import('pages/customers/CustomerListPage.vue') },
       { path: 'customers/create', component: () => import('pages/customers/CustomerFormPage.vue') },
       { path: 'customers/:id/edit', component: () => import('pages/customers/CustomerFormPage.vue') },

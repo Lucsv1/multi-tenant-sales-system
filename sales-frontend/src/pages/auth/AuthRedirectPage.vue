@@ -17,7 +17,7 @@ onMounted(() => {
   if (user?.is_super_admin) {
     router.replace('/tenants')
   } else {
-    router.replace('/')
+    router.replace('/dashboard')
   }
 })
 </script>
