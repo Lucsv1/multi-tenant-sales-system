@@ -1,13 +1,6 @@
 <?php
 
 use Illuminate\Foundation\Application;
-
-$app = new Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
-);
-
-$app->loadEnvironmentFrom(__DIR__ . '/../../.env');
-
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Application\Shared\Exception\Handler\DuplicateEntryExceptionHandler;
