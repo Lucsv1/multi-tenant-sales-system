@@ -26,7 +26,7 @@ class TenantController extends Controller
             return response()->json($tenant);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao listar tenants',
+                'message' => 'Erro ao listar tenants: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -39,7 +39,7 @@ class TenantController extends Controller
             return response()->json($tenant, 201);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao criar tenant',
+                'message' => 'Erro ao criar tenant: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -52,7 +52,7 @@ class TenantController extends Controller
             return response()->json($tenant);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao buscar tenant',
+                'message' => 'Erro ao buscar tenant: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -65,7 +65,7 @@ class TenantController extends Controller
             return response()->json($tenant);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao atualizar tenant',
+                'message' => 'Erro ao atualizar tenant: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -78,7 +78,7 @@ class TenantController extends Controller
             return response()->json($tenant);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao remover tenant',
+                'message' => 'Erro ao remover tenant: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }

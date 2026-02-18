@@ -27,7 +27,7 @@ class UserController extends Controller
             return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao listar usuarios',
+                'message' => 'Erro ao listar usuarios: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -40,7 +40,7 @@ class UserController extends Controller
             return response()->json($user, 201);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao criar usuario',
+                'message' => 'Erro ao criar usuario: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -53,7 +53,7 @@ class UserController extends Controller
             return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao buscar usuario',
+                'message' => 'Erro ao buscar usuario: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -66,7 +66,7 @@ class UserController extends Controller
             return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao atualizar usuario',
+                'message' => 'Erro ao atualizar usuario: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -79,7 +79,7 @@ class UserController extends Controller
             return response()->json($user);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao remover usuario',
+                'message' => 'Erro ao remover usuario: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }

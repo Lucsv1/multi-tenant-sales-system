@@ -45,11 +45,22 @@ export const api = {
   }
 }
 
+class ApiError extends Error {
+  constructor(message, response) {
+    super(message)
+    this.name = 'ApiError'
+    this.response = response
+  }
+}
+
 async function handleResponse(response) {
   const data = await response.json()
   
   if (!response.ok) {
-    throw new Error(data.message || 'Erro na requisição')
+    throw new ApiError(data.message || 'Erro na requisição', {
+      status: response.status,
+      data: data
+    })
   }
   
   return data

@@ -16,7 +16,7 @@
         </q-toolbar-title>
 
         <div class="row items-center q-gutter-sm">
-          <span class="text-caption">{{ user?.name }}</span>
+          <span class="text-caption">{{ userData?.name || user?.name }}</span>
           <q-btn flat round icon="logout" @click="handleLogout">
             <q-tooltip>Sair</q-tooltip>
           </q-btn>
@@ -32,7 +32,7 @@
         <q-item-label header>Menu</q-item-label>
 
         <q-item v-if="!isSuperAdmin" clickable to="/" exact>
-          <q-item-section avatar>
+          <q-item-section  avatar>
             <q-icon name="dashboard" />
           </q-item-section>
           <q-item-section>
@@ -89,7 +89,7 @@
 
         <q-item>
           <q-item-section>
-            <q-item-label caption>{{ user?.email }}</q-item-label>
+            <q-item-label caption>{{ userData?.email || user?.email }}</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -110,8 +110,17 @@ const router = useRouter()
 const { user, logout, getUser, hasRole } = useAuth()
 
 const leftDrawerOpen = ref(false)
-const isAdmin = computed(() => hasRole('Admin'))
-const isSuperAdmin = computed(() => hasRole('SuperAdmin'))
+const userData = ref(null)
+
+const isAdmin = computed(() => {
+  const u = userData.value || user.value
+  return u?.roles?.some(r => r.name === 'Admin') || u?.is_super_admin
+})
+
+const isSuperAdmin = computed(() => {
+  const u = userData.value || user.value
+  return u?.is_super_admin === true || u?.is_super_admin === 1
+})
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
@@ -123,6 +132,6 @@ const handleLogout = async () => {
 }
 
 onMounted(() => {
-  getUser()
+  userData.value = getUser()
 })
 </script>
