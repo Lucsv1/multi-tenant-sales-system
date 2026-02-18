@@ -163,7 +163,13 @@ const form = ref({
   notes: ''
 })
 
-const paymentMethods = ['cash', 'credit_card', 'debit_card', 'pix', 'transfer']
+const paymentMethods = [
+  { label: 'Dinheiro', value: 'cash' },
+  { label: 'Cartão de Crédito', value: 'credit_card' },
+  { label: 'Cartão de Débito', value: 'debit_card' },
+  { label: 'PIX', value: 'pix' },
+  { label: 'Transferência', value: 'transfer' }
+]
 
 const subtotal = computed(() => {
   return items.value.reduce((sum, item) => sum + (item.price * item.quantity), 0)
@@ -222,7 +228,7 @@ const submitSale = async () => {
   try {
     const saleData = {
       customer_id: form.value.customer_id ? String(form.value.customer_id) : null,
-      payment_method: form.value.payment_method,
+      payment_method: form.value.payment_method?.value || form.value.payment_method,
       discount: form.value.discount || 0,
       notes: form.value.notes,
       items: items.value.map(item => ({
@@ -233,9 +239,10 @@ const submitSale = async () => {
       }))
     }
 
-    const sale = await createSale(saleData)
+    const response = await createSale(saleData)
+    const saleDataResponse = response.data || response
     $q.notify({ color: 'positive', message: 'Venda realizada com sucesso!' })
-    router.push(`/sales/${sale.id}`)
+    router.push(`/sales/${saleDataResponse.id}`)
   } catch (error) {
     $q.notify({ color: 'negative', message: error.message || 'Erro ao criar venda' })
   } finally {

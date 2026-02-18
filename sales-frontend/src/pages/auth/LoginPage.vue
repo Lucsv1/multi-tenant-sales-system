@@ -55,18 +55,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from 'src/composables/useAuth'
 
 const router = useRouter()
-const { login } = useAuth()
+const { login, getUser } = useAuth()
 
 const email = ref('')
 const password = ref('')
 const isPwd = ref(true)
 const loading = ref(false)
 const error = ref('')
+
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    router.push('/')
+  }
+})
 
 const onSubmit = async () => {
   loading.value = true

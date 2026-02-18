@@ -2,7 +2,10 @@ import { api } from './useApi'
 
 export function useSales() {
   const getSales = async (params = {}) => {
-    const queryString = new URLSearchParams(params).toString()
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v !== null && v !== '' && v !== 'null')
+    )
+    const queryString = new URLSearchParams(filteredParams).toString()
     const data = await api.get(`/sale?${queryString}`)
     return data
   }

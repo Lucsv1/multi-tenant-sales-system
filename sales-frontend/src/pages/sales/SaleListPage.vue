@@ -44,16 +44,22 @@
           :pagination="pagination"
           @request="onRequest"
         >
-          <template v-slot:body-cell-sale_number="props">
+          <template v-slot:body-cell-saleNumber="props">
             <q-td :props="props">
-              <div class="text-weight-bold">{{ props.row.sale_number }}</div>
-              <div class="text-caption text-grey">{{ formatDate(props.row.sale_date) }}</div>
+              <div class="text-weight-bold">{{ props.row.saleNumber }}</div>
+              <div class="text-caption text-grey">{{ formatDate(props.row.saleDate) }}</div>
             </q-td>
           </template>
 
           <template v-slot:body-cell-customer="props">
             <q-td :props="props">
               {{ props.row.customer?.name || 'Consumidor' }}
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-paymentMethod="props">
+            <q-td :props="props">
+              {{ getPaymentMethodLabel(props.row.paymentMethod) }}
             </q-td>
           </template>
 
@@ -148,9 +154,9 @@ const statusOptions = [
 ]
 
 const columns = [
-  { name: 'sale_number', label: 'Venda', align: 'left', field: 'sale_number' },
+  { name: 'saleNumber', label: 'Venda', align: 'left', field: 'saleNumber' },
   { name: 'customer', label: 'Cliente', align: 'left', field: 'customer' },
-  { name: 'payment_method', label: 'Pagamento', align: 'left', field: 'payment_method' },
+  { name: 'paymentMethod', label: 'Pagamento', align: 'left', field: 'paymentMethod' },
   { name: 'total', label: 'Total', align: 'right', field: 'total' },
   { name: 'status', label: 'Status', align: 'center', field: 'status' },
   { name: 'actions', label: 'Ações', align: 'center' }
@@ -174,6 +180,17 @@ const getStatusLabel = (status) => {
   return labels[status] || status
 }
 
+const getPaymentMethodLabel = (method) => {
+  const labels = {
+    cash: 'Dinheiro',
+    credit_card: 'Cartão de Crédito',
+    debit_card: 'Cartão de Débito',
+    pix: 'PIX',
+    transfer: 'Transferência'
+  }
+  return labels[method] || method
+}
+
 const loadSales = async () => {
   loading.value = true
   try {
@@ -182,9 +199,10 @@ const loadSales = async () => {
       per_page: pagination.value.rowsPerPage,
       ...filters.value
     }
-    const data = await getSales(params)
+    const response = await getSales(params)
+    const data = response.data || response
     sales.value = data.data || data
-    pagination.value.rowsNumber = data.total || sales.value.length
+    pagination.value.rowsNumber = data.total || (data.data ? data.data.length : sales.value.length)
   } catch (error) {
     $q.notify({ color: 'negative', message: 'Erro ao carregar vendas' })
   } finally {
@@ -215,7 +233,7 @@ const viewSale = (sale) => {
 const confirmCancel = (sale) => {
   $q.dialog({
     title: 'Confirmar cancelamento',
-    message: `Deseja realmente cancelar a venda "${sale.sale_number}"?`,
+    message: `Deseja realmente cancelar a venda "${sale.saleNumber}"?`,
     cancel: true,
     persistent: true
   }).onOk(async () => {

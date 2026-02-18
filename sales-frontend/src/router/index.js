@@ -1,5 +1,6 @@
 import { defineRouter } from '#q-app/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
+import { api } from 'src/composables/useApi'
 import routes from './routes'
 
 export default defineRouter(function () {
@@ -13,16 +14,32 @@ export default defineRouter(function () {
     history: createHistory(process.env.VUE_ROUTER_BASE)
   })
 
-  Router.beforeEach((to, from, next) => {
+  const isAuthenticated = () => {
+    const token = localStorage.getItem('token')
+    return !!token
+  }
+
+  Router.beforeEach(async (to, from, next) => {
     const token = localStorage.getItem('token')
     
-    if (to.path !== '/login' && !token) {
-      next('/login')
-    } else if (to.path === '/login' && token) {
-      next('/')
-    } else {
-      next()
+    if (to.path !== '/login') {
+      if (!token) {
+        next('/login')
+        return
+      }
+      
+      if (to.path === '/login') {
+        next('/')
+        return
+      }
     }
+    
+    if (to.path === '/login' && token) {
+      next('/')
+      return
+    }
+    
+    next()
   })
 
   return Router

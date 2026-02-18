@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
 
-    // Sale report - any authenticated user
+    // Sale report
     Route::get('sale/report', [SaleController::class, 'report']);
 
     Route::middleware('role:Admin|Vendedor')->group(function () {

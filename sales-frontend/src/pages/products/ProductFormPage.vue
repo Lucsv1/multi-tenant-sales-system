@@ -1,12 +1,20 @@
 <template>
-  <q-page class="q-pa-md">
-    <q-btn icon="arrow_back" flat label="Voltar" @click="$router.back()" class="q-mb-md" />
+  <q-page class="q-pa-lg">
+    <div class="q-mb-lg">
+      <q-btn icon="arrow_back" flat dense label="Voltar" @click="$router.back()" class="q-mb-sm text-grey-7" />
+      <div class="text-h4 text-weight-bold">{{ isEditing ? 'Editar Produto' : 'Novo Produto' }}</div>
+      <div class="text-grey-6 q-mt-xs">{{ isEditing ? 'Atualize os dados do produto' : 'Preencha os dados para cadastrar um novo produto' }}</div>
+    </div>
 
-    <div class="text-h5 q-mb-md">{{ isEditing ? 'Editar Produto' : 'Novo Produto' }}</div>
-
-    <q-card>
-      <q-card-section>
+    <q-card flat bordered>
+      <q-card-section class="q-pa-lg">
         <q-form @submit="onSubmit" class="q-gutter-md">
+
+          <!-- Identificação -->
+          <div class="text-subtitle1 text-weight-medium text-primary q-mb-sm">
+            <q-icon name="inventory_2" class="q-mr-xs" />
+            Identificação
+          </div>
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-8">
               <q-input
@@ -23,18 +31,26 @@
                 label="SKU"
               />
             </div>
+            <div class="col-12">
+              <q-input
+                filled
+                v-model="form.description"
+                label="Descrição"
+                type="textarea"
+                rows="3"
+              />
+            </div>
           </div>
 
-          <q-input
-            filled
-            v-model="form.description"
-            label="Descrição"
-            type="textarea"
-            rows="3"
-          />
+          <q-separator class="q-my-md" />
 
+          <!-- Preços -->
+          <div class="text-subtitle1 text-weight-medium text-primary q-mb-sm">
+            <q-icon name="attach_money" class="q-mr-xs" />
+            Preços
+          </div>
           <div class="row q-col-gutter-md">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
               <q-input
                 filled
                 v-model="form.price"
@@ -45,7 +61,7 @@
                 :rules="[val => !!val || 'Preço é obrigatório']"
               />
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
               <q-input
                 filled
                 v-model="form.cost"
@@ -55,19 +71,26 @@
                 step="0.01"
               />
             </div>
-            <div class="col-12 col-md-4">
+          </div>
+
+          <q-separator class="q-my-md" />
+
+          <!-- Estoque -->
+          <div class="text-subtitle1 text-weight-medium text-primary q-mb-sm">
+            <q-icon name="warehouse" class="q-mr-xs" />
+            Estoque
+          </div>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-md-6">
               <q-input
                 filled
                 v-model="form.stock"
-                label="Estoque *"
+                label="Estoque Atual *"
                 type="number"
                 :rules="[val => val >= 0 || 'Estoque não pode ser negativo']"
               />
             </div>
-          </div>
-
-          <div class="row q-col-gutter-md">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
               <q-input
                 filled
                 v-model="form.min_stock"
@@ -75,15 +98,31 @@
                 type="number"
               />
             </div>
-            <div class="col-12 col-md-4">
-              <q-toggle v-model="form.is_active" label="Produto ativo" />
-            </div>
           </div>
 
-          <div class="q-mt-lg">
-            <q-btn label="Salvar" type="submit" color="primary" :loading="loading" />
-            <q-btn label="Cancelar" flat @click="$router.back()" class="q-ml-sm" />
+          <q-separator class="q-my-md" />
+
+          <!-- Configurações -->
+          <div class="text-subtitle1 text-weight-medium text-primary q-mb-sm">
+            <q-icon name="settings" class="q-mr-xs" />
+            Configurações
           </div>
+          <q-card flat class="bg-grey-1 rounded-borders q-pa-md">
+            <div class="row items-center justify-between">
+              <div>
+                <div class="text-body1">Status do Produto</div>
+                <div class="text-grey-6 text-caption">Produtos inativos não aparecem nas vendas</div>
+              </div>
+              <q-toggle v-model="form.is_active" color="positive" size="lg" />
+            </div>
+          </q-card>
+
+          <!-- Ações -->
+          <div class="row justify-end q-gutter-sm q-mt-md">
+            <q-btn label="Cancelar" flat color="grey-7" @click="$router.back()" />
+            <q-btn label="Salvar Produto" type="submit" color="primary" icon="save" :loading="loading" />
+          </div>
+
         </q-form>
       </q-card-section>
     </q-card>
@@ -126,7 +165,7 @@ const onSubmit = async () => {
       stock: parseInt(form.value.stock),
       min_stock: parseInt(form.value.min_stock) || 0
     }
-    
+
     if (isEditing.value) {
       await updateProduct(productId.value, data)
       $q.notify({ color: 'positive', message: 'Produto atualizado com sucesso' })
@@ -145,8 +184,18 @@ const onSubmit = async () => {
 const loadProduct = async () => {
   if (productId.value) {
     try {
-      const data = await getProduct(productId.value)
-      form.value = { ...data }
+      const response = await getProduct(productId.value)
+      const productData = response.data || response
+      form.value = {
+        name: productData.name,
+        description: productData.description,
+        sku: productData.sku,
+        price: productData.price,
+        cost: productData.cost,
+        stock: productData.stock,
+        min_stock: productData.minStock,
+        is_active: productData.isActive
+      }
     } catch (error) {
       $q.notify({ color: 'negative', message: 'Erro ao carregar produto' })
     }

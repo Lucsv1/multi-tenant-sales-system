@@ -35,7 +35,7 @@
             </q-td>
           </template>
 
-          <template v-slot:body-cell-is_active="props">
+          <template v-slot:body-cell-isActive="props">
             <q-td :props="props">
               <q-badge :color="props.row.isActive ? 'positive' : 'negative'">
                 {{ props.row.isActive ? 'Ativo' : 'Inativo' }}
@@ -76,21 +76,22 @@ const pagination = ref({
 const columns = [
   { name: 'name', label: 'Nome', align: 'left', field: 'name', sortable: true },
   { name: 'phone', label: 'Telefone', align: 'left', field: 'phone' },
-  { name: 'cpf_cnpj', label: 'CPF/CNPJ', align: 'left', field: 'cpf_cnpj' },
+  { name: 'cpfCnpj', label: 'CPF/CNPJ', align: 'left', field: 'cpfCnpj' },
   { name: 'city', label: 'Cidade', align: 'left', field: 'city' },
-  { name: 'is_active', label: 'Status', align: 'center', field: 'is_active' },
+  { name: 'isActive', label: 'Status', align: 'center', field: 'isActive' },
   { name: 'actions', label: 'Ações', align: 'center' }
 ]
 
 const loadCustomers = async () => {
   loading.value = true
   try {
-    const data = await getCustomers({
+    const response = await getCustomers({
       page: pagination.value.page,
       per_page: pagination.value.rowsPerPage
     })
+    const data = response.data || response
     customers.value = data.data || data
-    pagination.value.rowsNumber = data.total || customers.value.length
+    pagination.value.rowsNumber = data.total || (data.data ? data.data.length : customers.value.length)
   } catch (error) {
     $q.notify({ color: 'negative', message: 'Erro ao carregar clientes' })
   } finally {

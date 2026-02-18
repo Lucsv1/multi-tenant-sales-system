@@ -26,13 +26,12 @@
 
     <q-drawer
       v-model="leftDrawerOpen"
-      show-if-above
       bordered
     >
       <q-list>
         <q-item-label header>Menu</q-item-label>
 
-        <q-item clickable to="/" exact>
+        <q-item v-if="!isSuperAdmin" clickable to="/" exact>
           <q-item-section avatar>
             <q-icon name="dashboard" />
           </q-item-section>
@@ -41,7 +40,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable to="/sales">
+        <q-item v-if="!isSuperAdmin" clickable to="/sales">
           <q-item-section avatar>
             <q-icon name="point_of_sale" />
           </q-item-section>
@@ -50,7 +49,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable to="/customers">
+        <q-item v-if="!isSuperAdmin" clickable to="/customers">
           <q-item-section avatar>
             <q-icon name="people" />
           </q-item-section>
@@ -59,7 +58,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item v-if="isAdmin" clickable to="/products">
+        <q-item v-if="isAdmin && !isSuperAdmin" clickable to="/products">
           <q-item-section avatar>
             <q-icon name="inventory" />
           </q-item-section>
@@ -68,7 +67,25 @@
           </q-item-section>
         </q-item>
 
-        <q-separator class="q-my-md" />
+        <q-item v-if="isAdmin && !isSuperAdmin" clickable to="/users">
+          <q-item-section avatar>
+            <q-icon name="person" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Usuários</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-if="isSuperAdmin" clickable to="/tenants">
+          <q-item-section avatar>
+            <q-icon name="business" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Estabelecimentos</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-separator v-if="!isSuperAdmin" class="q-my-md" />
 
         <q-item>
           <q-item-section>
@@ -94,6 +111,7 @@ const { user, logout, getUser, hasRole } = useAuth()
 
 const leftDrawerOpen = ref(false)
 const isAdmin = computed(() => hasRole('Admin'))
+const isSuperAdmin = computed(() => hasRole('SuperAdmin'))
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
@@ -106,8 +124,5 @@ const handleLogout = async () => {
 
 onMounted(() => {
   getUser()
-  if (!user.value) {
-    router.push('/login')
-  }
 })
 </script>

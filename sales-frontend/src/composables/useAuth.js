@@ -17,6 +17,8 @@ export function useAuth() {
   const logout = async () => {
     try {
       await api.post('/auth/logout')
+    } catch (e) {
+      console.log('Logout API error:', e.message)
     } finally {
       localStorage.removeItem('token')
       localStorage.removeItem('user')

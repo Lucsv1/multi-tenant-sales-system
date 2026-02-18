@@ -51,12 +51,12 @@
             <q-list separator>
               <q-item v-for="sale in recentSales" :key="sale.id">
                 <q-item-section>
-                  <q-item-label>{{ sale.sale_number }}</q-item-label>
-                  <q-item-label caption>{{ formatDate(sale.sale_date) }}</q-item-label>
+                  <q-item-label>{{ sale.saleNumber }}</q-item-label>
+                  <q-item-label caption>{{ formatDate(sale.saleDate) }}</q-item-label>
                 </q-item-section>
                 <q-item-section side>
                   <q-badge :color="getStatusColor(sale.status)">
-                    {{ sale.status }}
+                    {{ getStatusLabel(sale.status) }}
                   </q-badge>
                 </q-item-section>
                 <q-item-section side>
@@ -80,11 +80,31 @@
             <q-btn color="primary" icon="point_of_sale" label="Nova Venda" to="/sales/create" class="full-width" />
             <q-btn color="green" icon="person_add" label="Novo Cliente" to="/customers/create" class="full-width" />
             <q-btn color="orange" icon="inventory" label="Produtos" to="/products" class="full-width" />
-            <q-btn color="purple" icon="assessment" label="Gerar Relatório" @click="generateReport" class="full-width" />
+            <q-btn color="purple" icon="assessment" label="Gerar Relatório" @click="showReportDialog = true" class="full-width" />
           </q-card-section>
         </q-card>
       </div>
     </div>
+
+    <q-dialog v-model="showReportDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Gerar Relatório</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input v-model="reportEmail" label="Email para envio" filled class="q-mb-md" />
+          <div class="text-caption">
+            O relatório será enviado para o email informado.
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" v-close-popup />
+          <q-btn color="primary" label="Gerar" @click="generateReport" :loading="reportLoading" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -93,12 +113,14 @@ import { ref, onMounted } from 'vue'
 import { useSales } from 'src/composables/useSales'
 import { useCustomers } from 'src/composables/useCustomers'
 import { useProducts } from 'src/composables/useProducts'
+import { useAuth } from 'src/composables/useAuth'
 import { useQuasar } from 'quasar'
 
 const $q = useQuasar()
-const { getSales } = useSales()
+const { getSales, sendReportEmail } = useSales()
 const { getCustomers } = useCustomers()
 const { getProducts } = useProducts()
+const { user } = useAuth()
 
 const stats = ref({
   todaySales: 0,
@@ -108,12 +130,16 @@ const stats = ref({
 })
 
 const recentSales = ref([])
+const showReportDialog = ref(false)
+const reportEmail = ref('')
+const reportLoading = ref(false)
 
 const formatCurrency = (value) => {
   return Number(value || 0).toFixed(2).replace('.', ',')
 }
 
 const formatDate = (date) => {
+  if (!date) return '-'
   return new Date(date).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
@@ -132,24 +158,34 @@ const getStatusColor = (status) => {
   return colors[status] || 'grey'
 }
 
+const getStatusLabel = (status) => {
+  const labels = {
+    completed: 'Concluída',
+    pending: 'Pendente',
+    cancelled: 'Cancelada'
+  }
+  return labels[status] || status
+}
+
 const loadDashboard = async () => {
   try {
-    const [salesData, customersData, productsData] = await Promise.all([
-      getSales({ limit: 5 }),
-      getCustomers({ limit: 100 }),
-      getProducts({ limit: 100 })
+    const [salesResponse, customersResponse, productsResponse] = await Promise.all([
+      getSales({ per_page: 100 }),
+      getCustomers({ per_page: 100 }),
+      getProducts({ per_page: 100 })
     ])
 
+    const salesData = salesResponse.data || salesResponse
     const sales = salesData.data || salesData
     
     const today = new Date().toISOString().split('T')[0]
-    const todaySales = sales.filter(s => s.sale_date && s.sale_date.startsWith(today))
+    const todaySales = sales.filter(s => s.saleDate && s.saleDate.startsWith(today))
 
     stats.value = {
       todaySales: todaySales.length,
       todayRevenue: todaySales.reduce((sum, s) => sum + Number(s.total), 0),
-      totalCustomers: customersData.total || customersData.data?.length || 0,
-      totalProducts: productsData.total || productsData.data?.length || 0
+      totalCustomers: customersResponse.total || customersResponse.data?.length || 0,
+      totalProducts: productsResponse.total || productsResponse.data?.length || 0
     }
 
     recentSales.value = sales.slice(0, 5)
@@ -158,15 +194,33 @@ const loadDashboard = async () => {
   }
 }
 
-const generateReport = () => {
-  $q.notify({
-    color: 'positive',
-    message: 'Relatório sendo gerado e será enviado por email',
-    icon: 'check'
-  })
+const generateReport = async () => {
+  reportLoading.value = true
+  try {
+    const params = {}
+    if (reportEmail.value) {
+      params.email = reportEmail.value
+    }
+    await sendReportEmail(params)
+    $q.notify({
+      color: 'positive',
+      message: 'Relatório sendo gerado e será enviado por email',
+      icon: 'check'
+    })
+    showReportDialog.value = false
+    reportEmail.value = ''
+  } catch (error) {
+    $q.notify({
+      color: 'negative',
+      message: error.message || 'Erro ao gerar relatório'
+    })
+  } finally {
+    reportLoading.value = false
+  }
 }
 
 onMounted(() => {
+  reportEmail.value = user.value?.email || ''
   loadDashboard()
 })
 </script>

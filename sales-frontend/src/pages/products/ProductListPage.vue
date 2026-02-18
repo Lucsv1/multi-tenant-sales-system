@@ -37,7 +37,7 @@
             </q-td>
           </template>
 
-          <template v-slot:body-cell-is_active="props">
+          <template v-slot:body-cell-isActive="props">
             <q-td :props="props">
               <q-badge :color="props.row.isActive ? 'positive' : 'negative'">
                 {{ props.row.isActive ? 'Ativo' : 'Inativo' }}
@@ -78,10 +78,10 @@ const pagination = ref({
 const columns = [
   { name: 'name', label: 'Produto', align: 'left', field: 'name', sortable: true },
   { name: 'price', label: 'Preço', align: 'left', field: 'price' },
-  { name: 'cost', label: 'Custo', align: 'left', field: 'row => formatCurrency(row.cost)' },
+  { name: 'cost', label: 'Custo', align: 'left', field: row => formatCurrency(row.cost) },
   { name: 'stock', label: 'Estoque', align: 'center', field: 'stock' },
-  { name: 'min_stock', label: 'Estoque Mín.', align: 'center', field: 'min_stock' },
-  { name: 'is_active', label: 'Status', align: 'center', field: 'is_active' },
+  { name: 'min_stock', label: 'Estoque Mín.', align: 'center', field: 'minStock' },
+  { name: 'isActive', label: 'Status', align: 'center', field: 'isActive' },
   { name: 'actions', label: 'Ações', align: 'center' }
 ]
 
@@ -98,12 +98,13 @@ const getStockColor = (stock, minStock) => {
 const loadProducts = async () => {
   loading.value = true
   try {
-    const data = await getProducts({
+    const response = await getProducts({
       page: pagination.value.page,
       per_page: pagination.value.rowsPerPage
     })
+    const data = response.data || response
     products.value = data.data || data
-    pagination.value.rowsNumber = data.total || products.value.length
+    pagination.value.rowsNumber = data.total || (data.data ? data.data.length : products.value.length)
   } catch (error) {
     $q.notify({ color: 'negative', message: 'Erro ao carregar produtos' })
   } finally {
