@@ -1,17 +1,9 @@
 import { defineRouter } from '#q-app/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
+import { api } from 'src/composables/useApi'
 import routes from './routes'
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
-
-export default defineRouter(function (/* { store, ssrContext } */) {
+export default defineRouter(function () {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory)
@@ -19,11 +11,35 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
+  })
+
+  const isAuthenticated = () => {
+    const token = localStorage.getItem('token')
+    return !!token
+  }
+
+  Router.beforeEach(async (to, from, next) => {
+    const token = localStorage.getItem('token')
+    
+    if (to.path !== '/login') {
+      if (!token) {
+        next('/login')
+        return
+      }
+      
+      if (to.path === '/login') {
+        next('/')
+        return
+      }
+    }
+    
+    if (to.path === '/login' && token) {
+      next('/')
+      return
+    }
+    
+    next()
   })
 
   return Router

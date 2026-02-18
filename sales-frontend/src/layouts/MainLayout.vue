@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated class="bg-primary">
       <q-toolbar>
         <q-btn
           flat
@@ -12,30 +12,86 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          Sistema de Vendas
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div class="row items-center q-gutter-sm">
+          <span class="text-caption">{{ user?.name }}</span>
+          <q-btn flat round icon="logout" @click="handleLogout">
+            <q-tooltip>Sair</q-tooltip>
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
     <q-drawer
       v-model="leftDrawerOpen"
-      show-if-above
       bordered
     >
       <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+        <q-item-label header>Menu</q-item-label>
 
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+        <q-item v-if="!isSuperAdmin" clickable to="/" exact>
+          <q-item-section avatar>
+            <q-icon name="dashboard" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Dashboard</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-if="!isSuperAdmin" clickable to="/sales">
+          <q-item-section avatar>
+            <q-icon name="point_of_sale" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Vendas</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-if="!isSuperAdmin" clickable to="/customers">
+          <q-item-section avatar>
+            <q-icon name="people" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Clientes</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-if="isAdmin && !isSuperAdmin" clickable to="/products">
+          <q-item-section avatar>
+            <q-icon name="inventory" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Produtos</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-if="isAdmin && !isSuperAdmin" clickable to="/users">
+          <q-item-section avatar>
+            <q-icon name="person" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Usuários</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-if="isSuperAdmin" clickable to="/tenants">
+          <q-item-section avatar>
+            <q-icon name="business" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Estabelecimentos</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-separator v-if="!isSuperAdmin" class="q-my-md" />
+
+        <q-item>
+          <q-item-section>
+            <q-item-label caption>{{ user?.email }}</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -46,57 +102,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from 'src/composables/useAuth'
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
+const router = useRouter()
+const { user, logout, getUser, hasRole } = useAuth()
 
 const leftDrawerOpen = ref(false)
+const isAdmin = computed(() => hasRole('Admin'))
+const isSuperAdmin = computed(() => hasRole('SuperAdmin'))
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
+
+const handleLogout = async () => {
+  await logout()
+  router.push('/login')
+}
+
+onMounted(() => {
+  getUser()
+})
 </script>

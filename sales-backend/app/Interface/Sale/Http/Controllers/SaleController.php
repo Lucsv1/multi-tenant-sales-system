@@ -104,7 +104,7 @@ class SaleController extends Controller
                 $email = $user->email;
 
                 if ($request->filled('email')) {
-                    $email = $request->email;
+                    $email = $request->input('email');
                 }
 
                 GenerateSalesReportJob::dispatch(
@@ -112,7 +112,7 @@ class SaleController extends Controller
                     $user->id,
                     $filters,
                     $email
-                );
+                )->onQueue('default');
 
                 return response()->json([
                     'message' => 'Relatório sendo gerado e será enviado por e-mail',

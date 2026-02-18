@@ -15,13 +15,13 @@ class SaleRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'customer_id' => 'nullable|exists:customers,id',
+      'customer_id' => 'nullable',
       'discount' => 'nullable|numeric|min:0',
-      'payment_method' => 'nullable|in:cash,credit_card,debit_card,pix,other',
+      'payment_method' => 'nullable|in:cash,credit_card,debit_card,pix,transfer',
       'notes' => 'nullable|string',
       'items' => 'required|array|min:1',
-      'items.*.product_id' => 'required|exists:products,id',
-      'items.*.quantity' => 'required|integer|min:1',
+      'items.*.product_id' => 'required',
+      'items.*.quantity' => 'required|numeric|min:1',
       'items.*.discount' => 'nullable|numeric|min:0',
     ];
   }
