@@ -6,6 +6,7 @@ use App\Application\User\DTOs\UserIndexRequest;
 use App\Application\User\DTOs\UserMapper;
 use App\Application\User\DTOs\UserRequest;
 use App\Application\User\DTOs\UserResponse;
+use App\Application\User\DTOs\UserUpdateRequest;
 use App\Infra\User\Persistence\Eloquent\Repositories\UserRepository;
 use App\Infra\User\Persistence\Eloquent\User;
 use Illuminate\Support\Facades\DB;
@@ -22,33 +23,41 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-    public function index(UserIndexRequest $userRequest)
+    public function index(UserIndexRequest $UserIndexRequest)
     {
-        return DB::transaction(function () use ($userRequest) {
+        return DB::transaction(function () use ($UserIndexRequest) {
             $query = $this->userRepository->buildQuery();
 
             if (!auth()->user()->isSuperAdmin()) {
                 $query->where('tenant_id', auth()->user()->tenant_id);
             }
 
-            if ($userRequest->has('search')) {
-                $search = $userRequest->search;
+            $query->where('id', '!=', auth()->id());
+
+            if (!auth()->user()->isSuperAdmin()) {
+                $query->where('tenant_id', auth()->user()->tenant_id);
+            }
+
+            $query->where('id', '!=', auth()->id());
+
+            if ($UserIndexRequest->has('search')) {
+                $search = $UserIndexRequest->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             }
 
-            if ($userRequest->has('is_active')) {
-                $query->where('is_active', $userRequest->boolean('is_active'));
+            if ($UserIndexRequest->has('is_active')) {
+                $query->where('is_active', $UserIndexRequest->boolean('is_active'));
             }
 
-            $sortBy = $userRequest->get('sort_by', 'created_at');
-            $sortOrder = $userRequest->get('sort_order', 'desc');
+            $sortBy = $UserIndexRequest->get('sort_by', 'created_at');
+            $sortOrder = $UserIndexRequest->get('sort_order', 'desc');
             $query->orderBy($sortBy, $sortOrder);
 
-            $perPage = $userRequest->get('per_page', 15);
-            $users = $query->paginate($perPage);
+            $perPage = $UserIndexRequest->get('per_page', 15);
+            $users = $query->with('roles')->paginate($perPage);
 
             return $users->through(fn($user) => UserResponse::fromEntity(UserMapper::toDomain($user))->toArray());
         });
@@ -87,15 +96,19 @@ class UserService
         });
     }
 
-    public function update(UserRequest $userRequest, User $user): array
+    public function update(UserUpdateRequest $userUpdateRequest, User $user): array
     {
         $this->authorizeUser($user);
 
-        return DB::transaction(function () use ($userRequest, $user) {
+        return DB::transaction(function () use ($userUpdateRequest, $user) {
 
-            $userValidated = $this->givenTenantIdForUser($userRequest);
+            $userValidated = $userUpdateRequest->validated();
 
             $user = $this->userRepository->update($user, $userValidated);
+
+            $role = $userValidated['role'] ?? 'Vendedor';
+
+            $user->syncRoles([$role]);
 
             $userDomain = UserMapper::toDomain($user);
 

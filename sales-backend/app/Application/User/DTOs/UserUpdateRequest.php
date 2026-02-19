@@ -3,9 +3,8 @@
 namespace App\Application\User\DTOs;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UserRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
 
   public function authorize(): bool
@@ -17,13 +16,7 @@ class UserRequest extends FormRequest
   {
     return [
       'name' => 'required|string|max:255',
-      'email' => [
-        'required',
-        'email',
-        Rule::unique('users', 'email')
-          ->where('tenant_id', auth()->user()->tenant_id)
-      ],
-      'password' => 'required|string|min:8|confirmed',
+      'email' => 'required|email|unique:users,email,NULL,id,tenant_id,' . ($this->tenant_id ?? ''),
       'role' => 'nullable|string|exists:roles,name'
     ];
   }

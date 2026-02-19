@@ -17,6 +17,7 @@ export function useUserList() {
     rowsNumber: 0
   })
 
+
   const columns = [
     { name: 'name', label: 'Nome', align: 'left', field: 'name', sortable: true },
     { name: 'email', label: 'Email', align: 'left', field: 'email' },
@@ -34,6 +35,8 @@ export function useUserList() {
       })
       const data = response.data || response
       users.value = data.data || data
+
+      console.log("users: ",JSON.parse(JSON.stringify(users.value)));
       pagination.value.rowsNumber = data.total || (data.data ? data.data.length : users.value.length)
     } catch (error) {
       $q.notify({ color: 'negative', message: 'Erro ao carregar usuários' })
@@ -68,6 +71,7 @@ export function useUserList() {
       }
     })
   }
+
 
   const setupUserList = () => {
     onMounted(() => {

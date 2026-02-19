@@ -9,47 +9,18 @@
 
       <q-card-section>
         <q-form @submit="onSubmit" class="q-gutter-md">
-          <q-input
-            filled
-            v-model="form.name"
-            label="Nome *"
-            :rules="[val => !!val || 'Nome é obrigatório']"
-          />
+          <q-input filled v-model="form.name" label="Nome *" :rules="[val => !!val || 'Nome é obrigatório']" />
 
-          <q-input
-            filled
-            v-model="form.email"
-            label="Email *"
-            type="email"
-            :rules="[val => !!val || 'Email é obrigatório', val => /.+@.+/.test(val) || 'Email inválido']"
-          />
+          <q-input filled v-model="form.email" label="Email *" type="email"
+            :rules="[val => !!val || 'Email é obrigatório', val => /.+@.+/.test(val) || 'Email inválido']" />
 
-          <q-input
-            v-if="!isEditing"
-            filled
-            v-model="form.password"
-            label="Senha *"
-            type="password"
-            :rules="[val => !!val || 'Senha é obrigatória']"
-          />
+          <q-input v-if="!isEditing" filled v-model="form.password" label="Senha *" type="password"
+            :rules="[val => !!val || 'Senha é obrigatória']" />
 
-          <q-input
-            v-if="!isEditing"
-            filled
-            v-model="form.password_confirmation"
-            label="Confirmar Senha *"
-            type="password"
-            :rules="[val => val === form.password || 'As senhas não conferem']"
-          />
+          <q-input v-if="!isEditing" filled v-model="form.password_confirmation" label="Confirmar Senha *"
+            type="password" :rules="[val => val === form.password || 'As senhas não conferem']" />
 
-          <q-select
-            filled
-            v-model="form.role"
-            :options="roleOptions"
-            label="Perfil *"
-            emit-value
-            map-options
-          />
+          <q-select filled v-model="form.role" :options="roleOptions" label="Perfil *" emit-value map-options />
 
           <div class="row items-center">
             <span class="q-mr-md">Status:</span>

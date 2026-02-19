@@ -16,6 +16,7 @@ class UserResponse
     public readonly string $email_verified_at,
     public readonly string $password,
     public readonly bool $isActive,
+    public readonly string|array $roles
   ) {
   }
 
@@ -29,6 +30,7 @@ class UserResponse
       email_verified_at: $user->getEmailVerifiedAt(),
       password: $user->getPassword(),
       isActive: $user->isIsActive(),
+      roles: $user->getRoles()
     );
   }
 
@@ -41,7 +43,8 @@ class UserResponse
       'email' => $this->email->getValue(),
       'email_verified_at' => $this->email_verified_at,
       'password' => $this->password,
-      'isActive' => $this->isActive
+      'isActive' => $this->isActive,
+      'roles' => $this->roles
     ];
   }
 

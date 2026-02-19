@@ -18,6 +18,7 @@ class UserMapper
       email_verified_at: $eloquent->email_verified_at ?? '',
       password: $eloquent->password,
       isActive: (bool) $eloquent->is_active,
+      roles: $eloquent->roles->toArray()
     );
   }
 }
