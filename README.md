@@ -259,6 +259,40 @@ Os vendedores são criados pelos Admins via interface ou API. Eles têm acesso l
 
 ---
 
+## ⚠️ Validação de CPF e CNPJ
+
+O sistema possui validação rigorosa para CPF e CNPJ. **Não são aceitos números aleatórios** - apenas documentos que passem na validação algorítmica oficial brasileira.
+
+### Por que não aceitamos números aleatórios?
+
+CPF e CNPJ possuem algoritmos de validação específicos (módulos 10 e 11) que verificam se os dígitos verificadores estão corretos. O sistema valida esses dígitos automaticamente.
+
+### Onde gerar CPF/CNPJ válidos para testes?
+
+Utilize o gerador de CPF/CNPJ online:
+
+- **CPF**: https://www.4devs.com.br/gerador_de_cpf
+- **CNPJ**: https://www.4devs.com.br/gerador_de_cnpj
+
+Esses sites geram documentos válidos algoritmicamente que passarão na validação do sistema.
+
+### Campos que possuem validação
+
+| Campo | Entidade |
+|-------|----------|
+| cpf | Users (opcional) |
+| cnpj | Tenants (obrigatório) |
+| cpf | Customers |
+
+### Exemplos de documentos válidos (para testes)
+
+| Tipo | Valor |
+|------|-------|
+| CPF válido | 123.456.789-00 (use o gerador) |
+| CNPJ válido | 12.345.678/0001-90 (use o gerador) |
+
+---
+
 ## 🔐 Autenticação e Autorização
 
 ### Sistema de Roles
