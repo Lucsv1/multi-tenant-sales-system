@@ -59,4 +59,9 @@ class ProductRepository implements ProductRepositoryInterface
     {
         return Product::query();
     }
+
+    public function countByTenant(int $tenantId): int
+    {
+        return Product::where('tenant_id', $tenantId)->count();
+    }
 }

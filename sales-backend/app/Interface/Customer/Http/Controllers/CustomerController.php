@@ -26,7 +26,7 @@ class CustomerController extends Controller
             return response()->json($customer);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao listar clientes',
+                'message' => 'Erro ao listar clientes: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -39,7 +39,7 @@ class CustomerController extends Controller
             return response()->json($customer, 201);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao criar cliente',
+                'message' => 'Erro ao criar cliente: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -52,7 +52,7 @@ class CustomerController extends Controller
             return response()->json($customer);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao buscar cliente',
+                'message' => 'Erro ao buscar cliente:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -65,7 +65,7 @@ class CustomerController extends Controller
             return response()->json($customer);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao atualizar cliente',
+                'message' => 'Erro ao atualizar cliente:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -78,7 +78,7 @@ class CustomerController extends Controller
             return response()->json($customer);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Erro ao remover cliente',
+                'message' => 'Erro ao remover cliente:' . $e->getMessage(),
                 'error' => $e->getMessage(),
             ], 500);
         }

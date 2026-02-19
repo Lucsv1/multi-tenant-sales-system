@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Auth\DTOs;
+namespace App\Application\User\DTOs;
 
 use App\Domain\User\Entity\User;
 use App\Domain\Shared\ValueObject\Email;
@@ -16,6 +16,7 @@ class UserResponse
     public readonly string $email_verified_at,
     public readonly string $password,
     public readonly bool $isActive,
+    public readonly string|array $roles
   ) {
   }
 
@@ -26,9 +27,10 @@ class UserResponse
       tenant_id: $user->getTenantId(),
       name: $user->getName(),
       email: new Email($user->getEmail()),
-      email_verified_at: $user->getEamilVerifiedAt(),
+      email_verified_at: $user->getEmailVerifiedAt(),
       password: $user->getPassword(),
       isActive: $user->isIsActive(),
+      roles: $user->getRoles()
     );
   }
 
@@ -38,10 +40,11 @@ class UserResponse
       'id' => $this->id,
       'tenant_id' => $this->tenant_id,
       'name' => $this->name,
-      'email' => new Email($this->email),
+      'email' => $this->email->getValue(),
       'email_verified_at' => $this->email_verified_at,
       'password' => $this->password,
-      'isActive' => $this->isActive
+      'isActive' => $this->isActive,
+      'roles' => $this->roles
     ];
   }
 

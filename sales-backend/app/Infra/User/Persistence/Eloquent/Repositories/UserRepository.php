@@ -4,6 +4,7 @@ namespace App\Infra\User\Persistence\Eloquent\Repositories;
 
 use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Infra\User\Persistence\Eloquent\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository implements UserRepositoryInterface
@@ -37,5 +38,15 @@ class UserRepository implements UserRepositoryInterface
     public function findByTenantId(int $tenantId): Collection
     {
         return User::where('tenant_id', $tenantId)->get();
+    }
+
+    public function buildQuery(): Builder
+    {
+        return User::query();
+    }
+
+    public function countByTenant(int $tenantId): int
+    {
+        return User::where('tenant_id', $tenantId)->count();
     }
 }

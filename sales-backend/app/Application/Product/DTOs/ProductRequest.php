@@ -15,6 +15,7 @@ class ProductRequest extends FormRequest
   public function rules(): array
   {
     return [
+      'tenant_id' => 'nullable|exists:tenants,id',
       'name' => 'required|string|max:255',
       'description' => 'nullable|string',
       'sku' => 'nullable|string|max:255',
@@ -23,6 +24,13 @@ class ProductRequest extends FormRequest
       'stock' => 'required|integer|min:0',
       'min_stock' => 'nullable|integer|min:0',
       'is_active' => 'boolean',
+    ];
+  }
+
+  public function messages(): array
+  {
+    return [
+      'sku.unique' => 'Este SKU já está em uso neste estabelecimento.',
     ];
   }
 

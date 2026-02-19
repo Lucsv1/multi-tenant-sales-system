@@ -6,9 +6,9 @@ use App\Application\Customer\DTOs\CustomerIndexRequest;
 use App\Application\Customer\DTOs\CustomerMapper;
 use App\Application\Customer\DTOs\CustomerRequest;
 use App\Application\Customer\DTOs\CustomerResponse;
-use App\Domain\Customer\Repositories\CustomerRepositoryInterface;
 use App\Infra\Customer\Persistence\Eloquent\Customer;
 use App\Infra\Customer\Persistence\Eloquent\Repositories\CustomerRepository;
+use App\Application\Support\CacheHelper;
 use Illuminate\Support\Facades\DB;
 
 class CustomerService
@@ -24,6 +24,8 @@ class CustomerService
 
     public function index(CustomerIndexRequest $customerRequest)
     {
+        $cacheKey = 'customers:index:' . md5(json_encode($customerRequest->all()));
+
         return DB::transaction(function () use ($customerRequest) {
             $query = $this->customerRepository->buildQuery();
 
@@ -47,7 +49,7 @@ class CustomerService
             $perPage = $customerRequest->get('per_page', 15);
             $customers = $query->paginate($perPage);
 
-            return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer)));
+            return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer))->toArray());
         });
     }
 
@@ -55,6 +57,9 @@ class CustomerService
     {
         return DB::transaction(function () use ($customerRequest) {
             $customer = $this->customerRepository->create($customerRequest->validated());
+
+            CacheHelper::invalidateCustomers();
+            CacheHelper::invalidateDashboard();
 
             $customerDomain = CustomerMapper::toDomain($customer);
 
@@ -80,6 +85,10 @@ class CustomerService
     {
         return DB::transaction(function () use ($customerRequest, $customer) {
             $customer = $this->customerRepository->update($customer, $customerRequest->validated());
+
+            CacheHelper::invalidateCustomers();
+            CacheHelper::invalidateDashboard();
+
             $customerDomain = CustomerMapper::toDomain($customer);
 
             return [
@@ -93,6 +102,9 @@ class CustomerService
     {
         return DB::transaction(function () use ($customer) {
             $this->customerRepository->delete($customer);
+
+            CacheHelper::invalidateCustomers();
+            CacheHelper::invalidateDashboard();
 
             return [
                 'message' => 'Customer removido com sucesso',

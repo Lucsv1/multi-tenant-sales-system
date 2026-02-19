@@ -10,6 +10,7 @@ use App\Infra\Product\Persistence\Eloquent\Repositories\ProductRepository;
 use App\Infra\Sale\Persistence\Eloquent\Repositories\SaleRepository;
 use App\Infra\Sale\Persistence\Eloquent\Sale;
 use App\Infra\SaleItem\Persistence\Eloquent\Repositories\SaleItemRepository;
+use App\Application\Support\CacheHelper;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -30,6 +31,8 @@ class SaleService
 
     public function index(SaleIndexRequest $saleIndexRequest)
     {
+        $cacheKey = 'sales:index:' . md5(json_encode($saleIndexRequest->all()));
+
         return DB::transaction(function () use ($saleIndexRequest) {
             $query = $this->saleRepository->buildQuery();
 
@@ -56,58 +59,65 @@ class SaleService
             $perPage = $saleIndexRequest->get('per_page', 15);
             $sales = $query->paginate($perPage);
 
-            return $sales->through(fn($sale) => SaleResponse::fromEntity(SaleMapper::toDomain($sale)));
+            return $sales->through(fn($sale) => SaleResponse::fromEloquentWithCustomer($sale)->toArray());
         });
     }
 
     public function store(SaleRequest $saleRequest): array
     {
-        return DB::transaction(function () use ($saleRequest) {
+        try {
+            return DB::transaction(function () use ($saleRequest) {
 
-            $saleRequest->validated();
+                $data = $saleRequest->validated();
 
-            $this->validateStock($saleRequest['items']);
+                $this->validateStock($data['items']);
 
-            $sale = $this->saleRepository->create([
-                'customer_id' => $saleRequest['customer_id'] ?? null,
-                'user_id' => auth()->id(),
-                'discount' => $saleRequest['discount'] ?? 0,
-                'status' => $saleRequest['status'] ?? 'completed',
-                'payment_method' => $saleRequest['payment_method'] ?? null,
-                'notes' => $saleRequest['notes'] ?? null,
-                'sale_date' => $saleRequest['sale_date'] ?? now(),
-            ]);
-
-            foreach ($saleRequest['items'] as $itemData) {
-                $product = $this->productRepository->findByIdWithLock($itemData['product_id']);
-
-                if (!$product->hasStock($itemData['quantity'])) {
-                    throw new Exception("Estoque insuficiente para o produto: {$product->name}");
-                }
-
-                $this->saleItemRepository->create([
-                    'sale_id' => $sale->id,
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'price' => $product->price,
-                    'quantity' => $itemData['quantity'],
-                    'discount' => $itemData['discount'] ?? 0,
+                $sale = $this->saleRepository->create([
+                    'customer_id' => $data['customer_id'] ?? null,
+                    'user_id' => auth()->id(),
+                    'discount' => $data['discount'] ?? 0,
+                    'status' => $data['status'] ?? 'completed',
+                    'payment_method' => $data['payment_method'] ?? null,
+                    'notes' => $data['notes'] ?? null,
+                    'sale_date' => $data['sale_date'] ?? now(),
                 ]);
 
-                $this->productRepository->decrementStock($product, $itemData['quantity']);
-            }
+                foreach ($data['items'] as $itemData) {
+                    $product = $this->productRepository->findByIdWithLock($itemData['product_id']);
 
-            $sale->load('items');
-            $sale->calculateTotals();
-            $sale->save();
+                    if (!$product->hasStock($itemData['quantity'])) {
+                        throw new Exception("Estoque insuficiente para o produto: {$product->name}");
+                    }
 
-            $saleDomain = SaleMapper::toDomain($sale->fresh(['items', 'customer', 'user']));
+                    $this->saleItemRepository->create([
+                        'sale_id' => $sale->id,
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'price' => $product->price,
+                        'quantity' => $itemData['quantity'],
+                        'discount' => $itemData['discount'] ?? 0,
+                    ]);
 
-            return [
-                'message' => 'Venda realizada com sucesso',
-                'data' => SaleResponse::fromEntity($saleDomain)->toArray(),
-            ];
-        });
+                    $this->productRepository->decrementStock($product, $itemData['quantity']);
+                }
+
+                $sale->load('items');
+                $sale->calculateTotals();
+                $sale->save();
+
+                CacheHelper::invalidateSales();
+                CacheHelper::invalidateDashboard();
+
+                $saleDomain = SaleMapper::toDomain($sale->fresh(['items', 'customer', 'user']));
+
+                return [
+                    'message' => 'Venda realizada com sucesso',
+                    'data' => SaleResponse::fromEntity($saleDomain)->toArray(),
+                ];
+            });
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     public function show(Sale $sale): array
@@ -115,10 +125,8 @@ class SaleService
         return DB::transaction(function () use ($sale) {
             $sale->load(['customer', 'user', 'items.product']);
 
-            $saleDomain = SaleMapper::toDomain($sale);
-
             return [
-                'data' => SaleResponse::fromEntity($saleDomain)->toArray(),
+                'data' => SaleResponse::fromEloquentWithCustomer($sale)->toArray(),
             ];
         });
     }
@@ -140,6 +148,9 @@ class SaleService
             }
 
             $this->saleRepository->update($sale, ['status' => 'cancelled']);
+
+            CacheHelper::invalidateSales();
+            CacheHelper::invalidateDashboard();
 
             $saleDomain = SaleMapper::toDomain($sale->fresh(['items', 'customer', 'user']));
 

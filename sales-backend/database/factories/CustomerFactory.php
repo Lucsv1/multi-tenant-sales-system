@@ -2,22 +2,30 @@
 
 namespace Database\Factories;
 
+use App\Infra\Customer\Persistence\Eloquent\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Costumer>
- */
 class CustomerFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Customer::class;
+
     public function definition(): array
     {
         return [
-            //
+            'tenant_id' => 1,
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'cpf_cnpj' => fake()->numerify('###########'),
+            'phone' => fake()->numerify('###########'),
+            'address' => fake()->address(),
+            'is_active' => true,
         ];
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
     }
 }

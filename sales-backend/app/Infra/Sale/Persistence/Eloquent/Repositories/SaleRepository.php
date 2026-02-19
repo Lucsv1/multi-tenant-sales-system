@@ -49,4 +49,28 @@ class SaleRepository implements SaleRepositoryInterface
     {
         return Sale::with(['customer', 'user', 'items.product']);
     }
+
+    public function getTotalByTenant(int $tenantId): float
+    {
+        return Sale::where('tenant_id', $tenantId)
+            ->where('status', 'completed')
+            ->sum('total');
+    }
+
+    public function getSalesToday(int $tenantId): float
+    {
+        return Sale::where('tenant_id', $tenantId)
+            ->where('status', 'completed')
+            ->whereDate('created_at', today())
+            ->sum('total');
+    }
+
+    public function getSalesThisMonth(int $tenantId): float
+    {
+        return Sale::where('tenant_id', $tenantId)
+            ->where('status', 'completed')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('total');
+    }
 }

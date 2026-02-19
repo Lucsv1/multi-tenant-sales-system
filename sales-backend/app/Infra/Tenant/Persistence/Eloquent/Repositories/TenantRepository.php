@@ -4,6 +4,7 @@ namespace App\Infra\Tenant\Persistence\Eloquent\Repositories;
 
 use App\Domain\Tenant\Repositories\TenantRepositoryInterface;
 use App\Infra\Tenant\Persistence\Eloquent\Tenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class TenantRepository implements TenantRepositoryInterface
@@ -32,5 +33,10 @@ class TenantRepository implements TenantRepositoryInterface
     public function delete(Tenant $tenant): void
     {
         $tenant->delete();
+    }
+
+    public function buildQuery(): Builder
+    {
+        return Tenant::query();
     }
 }

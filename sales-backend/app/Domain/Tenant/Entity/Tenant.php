@@ -2,24 +2,27 @@
 
 namespace App\Domain\Tenant\Entity;
 
+use App\Domain\Shared\ValueObject\CpfCnpj;
+use App\Domain\Shared\ValueObject\Email;
+
 class Tenant
 {
 
   private string $id;
   private string $name;
   private string $slug;
-  private string $email;
+  private Email $email;
   private string $phone;
-  private string $cnpj;
+  private CpfCnpj $cnpj;
   private bool $isActive;
 
   public function __construct(
     string $id,
     string $name,
     string $slug,
-    string $email,
+    Email $email,
     string $phone,
-    string $cnpj,
+    CpfCnpj $cnpj,
     bool $isActive
   ) {
     $this->id = $id;
@@ -36,7 +39,7 @@ class Tenant
     return $this->isActive;
   }
 
-  public function getCnpj(): string
+  public function getCnpj(): CpfCnpj
   {
     return $this->cnpj;
   }
@@ -46,7 +49,7 @@ class Tenant
     return $this->phone;
   }
 
-  public function getEmail(): string
+  public function getEmail(): Email
   {
     return $this->email;
   }

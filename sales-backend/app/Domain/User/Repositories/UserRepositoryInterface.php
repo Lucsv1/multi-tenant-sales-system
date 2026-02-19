@@ -3,6 +3,7 @@
 namespace App\Domain\User\Repositories;
 
 use App\Infra\User\Persistence\Eloquent\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 interface UserRepositoryInterface
@@ -13,4 +14,5 @@ interface UserRepositoryInterface
     public function update(User $user, array $data): User;
     public function delete(User $user): void;
     public function findByTenantId(int $tenantId): Collection;
+    public function buildQuery(): Builder;
 }

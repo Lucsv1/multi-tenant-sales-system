@@ -8,6 +8,7 @@ use App\Application\Product\DTOs\ProductResponse;
 use App\Application\Product\DTOs\ProductMapper;
 use App\Infra\Product\Persistence\Eloquent\Product;
 use App\Infra\Product\Persistence\Eloquent\Repositories\ProductRepository;
+use App\Application\Support\CacheHelper;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
@@ -21,6 +22,8 @@ class ProductService
 
     public function index(ProductIndexRequest $productIndexRequest)
     {
+        $cacheKey = 'products:index:' . md5(json_encode($productIndexRequest->all()));
+
         return DB::transaction(function () use ($productIndexRequest) {
             $query = $this->productRepository->buildQuery();
 
@@ -43,7 +46,7 @@ class ProductService
             $perPage = $productIndexRequest->get('per_page', 15);
             $products = $query->paginate($perPage);
 
-            return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product)));
+            return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product))->toArray());
         });
     }
 
@@ -51,6 +54,8 @@ class ProductService
     {
         return DB::transaction(function () use ($productRequest) {
             $product = $this->productRepository->create($productRequest->validated());
+
+            CacheHelper::invalidateProducts();
 
             $productDomain = ProductMapper::toDomain($product);
 
@@ -76,6 +81,9 @@ class ProductService
     {
         return DB::transaction(function () use ($productRequest, $product) {
             $product = $this->productRepository->update($product, $productRequest->validated());
+
+            CacheHelper::invalidateProducts();
+
             $productDomain = ProductMapper::toDomain($product);
 
             return [
@@ -89,6 +97,9 @@ class ProductService
     {
         return DB::transaction(function () use ($product) {
             $this->productRepository->delete($product);
+
+            CacheHelper::invalidateProducts();
+            CacheHelper::invalidateDashboard();
 
             return [
                 'message' => 'Produto removido com sucesso',

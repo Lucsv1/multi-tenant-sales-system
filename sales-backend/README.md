@@ -1,59 +1,242 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Gestão de Vendas SaaS (Multi-Tenant)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 📋 Descrição
 
-## About Laravel
+API RESTful para sistema de gestão de vendas e estoque com suporte a múltiplas lojas (tenants). Desenvolvido em Laravel 12 com arquitetura hexagonal e Vue.js.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🏗️ Arquitetura
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Backend**: Laravel 12 com API RESTful
+- **Frontend**: Vue.js com Vue Router
+- **Banco de Dados**: MySQL 8.0
+- **Cache**: Redis
+- **Filas**: Redis Queue com Laravel Queue
+- **Autenticação**: Laravel Sanctum (Tokens)
+- **Containerização**: Docker + Docker Compose
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🚀 Pré-requisitos
 
-## Learning Laravel
+- Docker
+- Docker Compose
+- Git
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 📦 Instalação
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. Clonar o projeto
 
-## Laravel Sponsors
+```bash
+git clone <repository-url>
+cd sales-backend
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 2. Configurar variáveis de ambiente
 
-### Premium Partners
+```bash
+cp .env.example .env
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Edite o arquivo `.env` com as configurações do seu ambiente:
 
-## Contributing
+```env
+APP_NAME="Sales System"
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=db-sales
+DB_USERNAME=sales
+DB_PASSWORD=sales
 
-## Code of Conduct
+QUEUE_CONNECTION=redis
+CACHE_STORE=redis
+REDIS_HOST=redis
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Iniciar containers Docker
 
-## Security Vulnerabilities
+```bash
+docker-compose up -d
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Instalar dependências
 
-## License
+```bash
+docker-compose exec app composer install
+docker-compose exec app npm install
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 5. Configurar aplicação
+
+```bash
+# Gerar chave da aplicação
+docker-compose exec app php artisan key:generate
+
+# Executar migrações
+docker-compose exec app php artisan migrate --force
+
+# Executar seeders (opcional)
+docker-compose exec app php artisan db:seed
+```
+
+### 6. Acessar a aplicação
+
+- **API**: http://localhost:8000
+- **Adminer** (Gerenciador BD): http://localhost:8080
+
+## 🔧 Comandos Úteis
+
+```bash
+# Ver logs
+docker-compose logs -f app
+
+# Acessar container
+docker-compose exec app bash
+
+# Executar testes
+docker-compose exec app php artisan test
+
+# Limpar cache
+docker-compose exec app php artisan cache:clear
+docker-compose exec app php artisan config:clear
+
+# Recriar banco
+docker-compose exec app php artisan migrate:fresh --seed
+```
+
+## 📚 Endpoints da API
+
+### Autenticação
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| POST | `/api/auth/register` | Registrar novo usuário |
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/logout` | Logout |
+| GET | `/api/auth/me` | Dados do usuário |
+
+### Lojas (Tenants) - Apenas SuperAdmin
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/tenant` | Listar lojas |
+| POST | `/api/tenant` | Criar loja |
+| GET | `/api/tenant/{id}` | Ver loja |
+| PUT | `/api/tenant/{id}` | Atualizar loja |
+| DELETE | `/api/tenant/{id}` | Excluir loja |
+
+### Produtos - Apenas Admin
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/product` | Listar produtos |
+| POST | `/api/product` | Criar produto |
+| GET | `/api/product/{id}` | Ver produto |
+| PUT | `/api/product/{id}` | Atualizar produto |
+| DELETE | `/api/product/{id}` | Excluir produto |
+
+### Clientes - Admin e Vendedor
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/customer` | Listar clientes |
+| POST | `/api/customer` | Criar cliente |
+| GET | `/api/customer/{id}` | Ver cliente |
+| PUT | `/api/customer/{id}` | Atualizar cliente |
+| DELETE | `/api/customer/{id}` | Excluir cliente |
+
+### Vendas - Admin e Vendedor
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/sale` | Listar vendas |
+| POST | `/api/sale` | Criar venda |
+| GET | `/api/sale/{id}` | Ver venda |
+| DELETE | `/api/sale/{id}` | Cancelar venda |
+| GET | `/api/sale/report` | Gerar relatório |
+
+### Relatório de Vendas
+
+```
+GET /api/sale/report?status=completed&date_from=2024-01-01&date_to=2024-12-31
+```
+
+Parâmetros opcionais:
+- `status`: completed, cancelled
+- `date_from`: Data inicial (Y-m-d)
+- `date_to`: Data final (Y-m-d)
+- `customer_id`: ID do cliente
+- `cached`: true (usar cache)
+- `send_email`: true (enviar por email)
+- `email`: email@exemplo.com (destinatário)
+
+### Usuários - Apenas Admin
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/user` | Listar usuários |
+| POST | `/api/user` | Criar usuário |
+| GET | `/api/user/{id}` | Ver usuário |
+| PUT | `/api/user/{id}` | Atualizar usuário |
+| DELETE | `/api/user/{id}` | Excluir usuário |
+
+## 🔐 Roles e Permissões
+
+| Role | Permissões |
+|------|-----------|
+| **SuperAdmin** | Gerenciar tenants, ver tudo |
+| **Admin** | Gerenciar produtos, usuários, ver clientes e vendas |
+| **Vendedor** | Gerenciar clientes e vendas |
+
+## 🧪 Testes
+
+```bash
+# Executar todos os testes
+docker-compose exec app php artisan test
+
+# Executar testes unitários
+docker-compose exec app php artisan test --testsuite=Unit
+
+# Executar testes de feature
+docker-compose exec app php artisan test --testsuite=Feature
+```
+
+## 📂 Estrutura do Projeto
+
+```
+sales-backend/
+├── app/
+│   ├── Application/       # Casos de uso (Services, DTOs)
+│   ├── Domain/           # Entidades e interfaces
+│   ├── Infra/            # Implementações (Eloquent, Repositories)
+│   ├── Interface/        # Controllers, HTTP
+│   └── Jobs/             # Jobs para filas
+├── config/               # Configurações Laravel
+├── database/
+│   ├── factories/        # Factories para testes
+│   ├── migrations/       # Migrações
+│   └── seeders/         # Seeders
+├── docker/               # Configurações Docker
+├── resources/            # Views, Assets
+├── routes/               # Rotas API
+├── tests/                # Testes
+└── vendor/               # Dependências
+```
+
+## 🐳 Docker Compose Services
+
+| Serviço | Porta | Descrição |
+|---------|-------|-----------|
+| app | 9000 | Aplicação Laravel |
+| nginx | 8000 | Servidor Web |
+| mysql | 3306 | Banco de Dados |
+| redis | 6379 | Cache e Filas |
+| queue | - | Worker de Filas |
+| adminer | 8080 | Gerenciador BD |
+
+## 📄 Licença
+
+MIT

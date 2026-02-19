@@ -12,26 +12,29 @@ class User
   private int $tenant_id;
   private string $name;
   private Email $email;
-  private string $eamil_verified_at;
+  private string $email_verified_at;
   private string $password;
   private bool $isActive;
+  private string|array $roles;
 
   public function __construct(
     string $id,
     int $tenant_id,
     string $name,
     Email $email,
-    string $eamil_verified_at,
+    string $email_verified_at,
     string $password,
-    bool $isActive
+    bool $isActive,
+    string|array $roles
   ) {
     $this->id = $id;
     $this->tenant_id = $tenant_id;
     $this->name = $name;
     $this->email = $email;
-    $this->eamil_verified_at = $eamil_verified_at;
+    $this->email_verified_at = $email_verified_at;
     $this->password = $password;
     $this->isActive = $isActive;
+    $this->roles = $roles;
   }
 
   public function setName(string $name)
@@ -60,9 +63,9 @@ class User
   /**
    * Get the value of eamil_verified_at
    */
-  public function getEamilVerifiedAt(): string
+  public function getEmailVerifiedAt(): string
   {
-    return $this->eamil_verified_at;
+    return $this->email_verified_at;
   }
 
   /**
@@ -95,5 +98,13 @@ class User
   public function getId(): string
   {
     return $this->id;
+  }
+
+  /**
+   * Get the value of role
+   */
+  public function getRoles(): string|array
+  {
+    return $this->roles;
   }
 }

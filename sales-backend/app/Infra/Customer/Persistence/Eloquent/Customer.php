@@ -12,6 +12,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Customer extends Model
 {
     use HasFactory, SoftDeletes, BelongsToTenant;
+
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
+    {
+        return \Database\Factories\CustomerFactory::new();
+    }
+
     protected $fillable = [
         'tenant_id',
         'name',
@@ -40,25 +46,4 @@ class Customer extends Model
         return $this->hasMany(Sale::class);
     }
 
-    /**
-     * Accessor para formatar CPF/CNPJ
-     */
-    public function getFormattedCpfCnpjAttribute(): ?string
-    {
-        if (!$this->cpf_cnpj) {
-            return null;
-        }
-
-        $cpfCnpj = preg_replace('/\D/', '', $this->cpf_cnpj);
-
-        if (strlen($cpfCnpj) === 11) {
-            // CPF
-            return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpfCnpj);
-        } elseif (strlen($cpfCnpj) === 14) {
-            // CNPJ
-            return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cpfCnpj);
-        }
-
-        return $this->cpf_cnpj;
-    }
 }
