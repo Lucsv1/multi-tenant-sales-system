@@ -14,7 +14,7 @@ class CacheHelper
         if (!$user) {
             return null;
         }
-        
+
         return $user->tenant_id ?? null;
     }
 
@@ -27,21 +27,21 @@ class CacheHelper
     public static function remember(string $key, int $ttl = 3600, callable $callback)
     {
         $fullKey = self::tenantKey($key);
-        
+
         return Cache::remember($fullKey, $ttl, $callback);
     }
 
     public static function rememberForever(string $key, callable $callback)
     {
         $fullKey = self::tenantKey($key);
-        
+
         return Cache::rememberForever($fullKey, $callback);
     }
 
     public static function forget(string $key): bool
     {
         $fullKey = self::tenantKey($key);
-        
+
         return Cache::forget($fullKey);
     }
 
@@ -50,11 +50,11 @@ class CacheHelper
         $tenantId = self::getTenantId();
         if ($tenantId) {
             $pattern = "tenant:{$tenantId}:*";
-            
+
             if (config('cache.default') === 'redis') {
                 $redis = Redis::connection(config('cache.stores.redis.connection'));
                 $keys = $redis->keys($pattern);
-                
+
                 if (!empty($keys)) {
                     $redis->del($keys);
                 }
@@ -67,7 +67,7 @@ class CacheHelper
         if (config('cache.default') === 'redis') {
             $redis = Redis::connection(config('cache.stores.redis.connection'));
             $keys = $redis->keys('tenant:*');
-            
+
             if (!empty($keys)) {
                 $redis->del($keys);
             }
@@ -76,21 +76,57 @@ class CacheHelper
 
     public static function invalidateProducts(): void
     {
-        self::forget('products:*');
+        $tenantId = self::getTenantId();
+        if ($tenantId && config('cache.default') === 'redis') {
+            $redis = Redis::connection(config('cache.stores.redis.connection'));
+            $pattern = "tenant:{$tenantId}:products:*";
+            $keys = $redis->keys($pattern);
+
+            if (!empty($keys)) {
+                $redis->del($keys);
+            }
+        }
     }
 
     public static function invalidateCustomers(): void
     {
-        self::forget('customers:*');
+        $tenantId = self::getTenantId();
+        if ($tenantId && config('cache.default') === 'redis') {
+            $redis = Redis::connection(config('cache.stores.redis.connection'));
+            $pattern = "tenant:{$tenantId}:customers:*";
+            $keys = $redis->keys($pattern);
+
+            if (!empty($keys)) {
+                $redis->del($keys);
+            }
+        }
     }
 
     public static function invalidateSales(): void
     {
-        self::forget('sales:*');
+        $tenantId = self::getTenantId();
+        if ($tenantId && config('cache.default') === 'redis') {
+            $redis = Redis::connection(config('cache.stores.redis.connection'));
+            $pattern = "tenant:{$tenantId}:sales:*";
+            $keys = $redis->keys($pattern);
+
+            if (!empty($keys)) {
+                $redis->del($keys);
+            }
+        }
     }
 
     public static function invalidateDashboard(): void
     {
-        self::forget('dashboard:stats');
+        $tenantId = self::getTenantId();
+        if ($tenantId && config('cache.default') === 'redis') {
+            $redis = Redis::connection(config('cache.stores.redis.connection'));
+            $pattern = "tenant:{$tenantId}:dashboard:stats";
+            $keys = $redis->keys($pattern);
+
+            if (!empty($keys)) {
+                $redis->del($keys);
+            }
+        }
     }
 }

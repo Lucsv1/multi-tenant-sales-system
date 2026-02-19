@@ -44,4 +44,9 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::query();
     }
+
+    public function countByTenant(int $tenantId): int
+    {
+        return User::where('tenant_id', $tenantId)->count();
+    }
 }

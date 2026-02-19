@@ -7,6 +7,7 @@ use App\Application\User\DTOs\UserMapper;
 use App\Application\User\DTOs\UserRequest;
 use App\Application\User\DTOs\UserResponse;
 use App\Application\User\DTOs\UserUpdateRequest;
+use App\Application\Support\CacheHelper;
 use App\Infra\User\Persistence\Eloquent\Repositories\UserRepository;
 use App\Infra\User\Persistence\Eloquent\User;
 use Illuminate\Support\Facades\DB;
@@ -27,10 +28,6 @@ class UserService
     {
         return DB::transaction(function () use ($UserIndexRequest) {
             $query = $this->userRepository->buildQuery();
-
-            if (!auth()->user()->isSuperAdmin()) {
-                $query->where('tenant_id', auth()->user()->tenant_id);
-            }
 
             $query->where('id', '!=', auth()->id());
 
@@ -74,6 +71,8 @@ class UserService
             $role = $userValidated['role'] ?? 'Vendedor';
             $user->assignRole($role);
 
+            CacheHelper::invalidateDashboard();
+
             $userDomain = UserMapper::toDomain($user);
 
             return [
@@ -110,6 +109,8 @@ class UserService
 
             $user->syncRoles([$role]);
 
+            CacheHelper::invalidateDashboard();
+
             $userDomain = UserMapper::toDomain($user);
 
             return [
@@ -125,6 +126,8 @@ class UserService
 
         return DB::transaction(function () use ($user) {
             $this->userRepository->delete($user);
+
+            CacheHelper::invalidateDashboard();
 
             return [
                 'message' => 'Usuario removido com sucesso',

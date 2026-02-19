@@ -36,7 +36,6 @@ export function useUserList() {
       const data = response.data || response
       users.value = data.data || data
 
-      console.log("users: ",JSON.parse(JSON.stringify(users.value)));
       pagination.value.rowsNumber = data.total || (data.data ? data.data.length : users.value.length)
     } catch (error) {
       $q.notify({ color: 'negative', message: 'Erro ao carregar usuários' })

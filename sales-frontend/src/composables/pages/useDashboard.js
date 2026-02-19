@@ -1,15 +1,12 @@
 import { ref, computed } from 'vue'
 import { useSales } from '../useSales'
-import { useCustomers } from '../useCustomers'
-import { useProducts } from '../useProducts'
 import { useAuth } from '../useAuth'
 import { useQuasar } from 'quasar'
+import { api } from '../useApi'
 
 export function useDashboard() {
   const $q = useQuasar()
   const { getSales, sendReportEmail } = useSales()
-  const { getCustomers } = useCustomers()
-  const { getProducts } = useProducts()
   const { user, hasRole } = useAuth()
 
   const isAdmin = computed(() => hasRole('Admin') || user.value?.is_super_admin)
@@ -18,7 +15,9 @@ export function useDashboard() {
     todaySales: 0,
     todayRevenue: 0,
     totalCustomers: 0,
-    totalProducts: 0
+    totalProducts: 0,
+    totalUsers: 0,
+    salesThisMonth: 0
   })
 
   const recentSales = ref([])
@@ -61,32 +60,20 @@ export function useDashboard() {
 
   const loadDashboard = async () => {
     try {
-      const salesResponse = await getSales({ per_page: 100 })
+      const dashboardStats = await api.get('/dashboard/stats')
 
+      stats.value = {
+        todaySales: dashboardStats.sales_today || 0,
+        todayRevenue: dashboardStats.sales_today || 0,
+        totalCustomers: dashboardStats.total_customers || 0,
+        totalProducts: dashboardStats.total_products || 0,
+        totalUsers: dashboardStats.total_users || 0,
+        salesThisMonth: dashboardStats.sales_this_month || 0
+      }
+
+      const salesResponse = await getSales({ per_page: 5 })
       const salesData = salesResponse.data || salesResponse
-      const sales = salesData.data || salesData
-
-
-      const today = new Date().toISOString().split('T')[0]
-      const todaySales = sales.filter(s => s.saleDate && s.saleDate.startsWith(today))
-
-      const statsData = {
-        todaySales: todaySales.length,
-        todayRevenue: todaySales.reduce((sum, s) => sum + Number(s.total), 0),
-        totalCustomers: 0,
-        totalProducts: 0
-      }
-
-      const customersResponse = await getCustomers({ per_page: 100 })
-      statsData.totalCustomers = customersResponse.total || customersResponse.data?.length || 0
-
-      if (isAdmin.value) {
-        const productsResponse = await getProducts({ per_page: 100 })
-        statsData.totalProducts = productsResponse.total || productsResponse.data?.length || 0
-      }
-
-      stats.value = statsData
-      recentSales.value = sales.slice(0, 5)
+      recentSales.value = (salesData.data || salesData).slice(0, 5)
     } catch (error) {
       console.error('Erro ao carregar dashboard:', error)
     }

@@ -26,32 +26,30 @@ class CustomerService
     {
         $cacheKey = 'customers:index:' . md5(json_encode($customerRequest->all()));
 
-        return CacheHelper::remember($cacheKey, 300, function () use ($customerRequest) {
-            return DB::transaction(function () use ($customerRequest) {
-                $query = $this->customerRepository->buildQuery();
+        return DB::transaction(function () use ($customerRequest) {
+            $query = $this->customerRepository->buildQuery();
 
-                if ($customerRequest->has('search')) {
-                    $search = $customerRequest->search;
-                    $query->where(function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%")
-                            ->orWhere('cpf_cnpj', 'like', "%{$search}%");
-                    });
-                }
+            if ($customerRequest->has('search')) {
+                $search = $customerRequest->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('cpf_cnpj', 'like', "%{$search}%");
+                });
+            }
 
-                if ($customerRequest->has('is_active')) {
-                    $query->where('is_active', $customerRequest->boolean('is_active'));
-                }
+            if ($customerRequest->has('is_active')) {
+                $query->where('is_active', $customerRequest->boolean('is_active'));
+            }
 
-                $sortBy = $customerRequest->get('sort_by', 'created_at');
-                $sortOrder = $customerRequest->get('sort_order', 'desc');
-                $query->orderBy($sortBy, $sortOrder);
+            $sortBy = $customerRequest->get('sort_by', 'created_at');
+            $sortOrder = $customerRequest->get('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
 
-                $perPage = $customerRequest->get('per_page', 15);
-                $customers = $query->paginate($perPage);
+            $perPage = $customerRequest->get('per_page', 15);
+            $customers = $query->paginate($perPage);
 
-                return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer))->toArray());
-            });
+            return $customers->through(fn($customer) => CustomerResponse::fromEntity(CustomerMapper::toDomain($customer))->toArray());
         });
     }
 
@@ -61,6 +59,7 @@ class CustomerService
             $customer = $this->customerRepository->create($customerRequest->validated());
 
             CacheHelper::invalidateCustomers();
+            CacheHelper::invalidateDashboard();
 
             $customerDomain = CustomerMapper::toDomain($customer);
 
@@ -88,6 +87,7 @@ class CustomerService
             $customer = $this->customerRepository->update($customer, $customerRequest->validated());
 
             CacheHelper::invalidateCustomers();
+            CacheHelper::invalidateDashboard();
 
             $customerDomain = CustomerMapper::toDomain($customer);
 
@@ -104,6 +104,7 @@ class CustomerService
             $this->customerRepository->delete($customer);
 
             CacheHelper::invalidateCustomers();
+            CacheHelper::invalidateDashboard();
 
             return [
                 'message' => 'Customer removido com sucesso',
