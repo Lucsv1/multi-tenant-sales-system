@@ -436,6 +436,33 @@
         "parameters": [{"name": "user", "in": "path", "required": true, "schema": {"type": "integer"}}],
         "responses": {"200": {"description": "User deleted"}}
       }
+    },
+    "/api/dashboard/stats": {
+      "get": {
+        "summary": "Get dashboard statistics",
+        "tags": ["Dashboard"],
+        "security": [{"sanctum": []}],
+        "responses": {
+          "200": {
+            "description": "Dashboard statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total_sales": {"type": "number", "example": 15000.00},
+                    "total_customers": {"type": "integer", "example": 25},
+                    "total_products": {"type": "integer", "example": 100},
+                    "total_users": {"type": "integer", "example": 5},
+                    "sales_today": {"type": "number", "example": 1200.00},
+                    "sales_this_month": {"type": "number", "example": 8500.00}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
