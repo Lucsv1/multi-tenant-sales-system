@@ -24,31 +24,29 @@ class ProductService
     {
         $cacheKey = 'products:index:' . md5(json_encode($productIndexRequest->all()));
 
-        return CacheHelper::remember($cacheKey, 300, function () use ($productIndexRequest) {
-            return DB::transaction(function () use ($productIndexRequest) {
-                $query = $this->productRepository->buildQuery();
+        return DB::transaction(function () use ($productIndexRequest) {
+            $query = $this->productRepository->buildQuery();
 
-                if ($productIndexRequest->has('search')) {
-                    $search = $productIndexRequest->search;
-                    $query->where(function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('sku', 'like', "%{$search}%");
-                    });
-                }
+            if ($productIndexRequest->has('search')) {
+                $search = $productIndexRequest->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%");
+                });
+            }
 
-                if ($productIndexRequest->has('is_active')) {
-                    $query->where('is_active', $productIndexRequest->boolean('is_active'));
-                }
+            if ($productIndexRequest->has('is_active')) {
+                $query->where('is_active', $productIndexRequest->boolean('is_active'));
+            }
 
-                $sortBy = $productIndexRequest->get('sort_by', 'created_at');
-                $sortOrder = $productIndexRequest->get('sort_order', 'desc');
-                $query->orderBy($sortBy, $sortOrder);
+            $sortBy = $productIndexRequest->get('sort_by', 'created_at');
+            $sortOrder = $productIndexRequest->get('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
 
-                $perPage = $productIndexRequest->get('per_page', 15);
-                $products = $query->paginate($perPage);
+            $perPage = $productIndexRequest->get('per_page', 15);
+            $products = $query->paginate($perPage);
 
-                return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product))->toArray());
-            });
+            return $products->through(fn($product) => ProductResponse::fromEntity(ProductMapper::toDomain($product))->toArray());
         });
     }
 
@@ -83,7 +81,7 @@ class ProductService
     {
         return DB::transaction(function () use ($productRequest, $product) {
             $product = $this->productRepository->update($product, $productRequest->validated());
-            
+
             CacheHelper::invalidateProducts();
 
             $productDomain = ProductMapper::toDomain($product);
@@ -101,6 +99,7 @@ class ProductService
             $this->productRepository->delete($product);
 
             CacheHelper::invalidateProducts();
+            CacheHelper::invalidateDashboard();
 
             return [
                 'message' => 'Produto removido com sucesso',

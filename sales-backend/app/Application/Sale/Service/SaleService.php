@@ -33,35 +33,33 @@ class SaleService
     {
         $cacheKey = 'sales:index:' . md5(json_encode($saleIndexRequest->all()));
 
-        return CacheHelper::remember($cacheKey, 300, function () use ($saleIndexRequest) {
-            return DB::transaction(function () use ($saleIndexRequest) {
-                $query = $this->saleRepository->buildQuery();
+        return DB::transaction(function () use ($saleIndexRequest) {
+            $query = $this->saleRepository->buildQuery();
 
-                if ($saleIndexRequest->has('status')) {
-                    $query->where('status', $saleIndexRequest->status);
-                }
+            if ($saleIndexRequest->has('status')) {
+                $query->where('status', $saleIndexRequest->status);
+            }
 
-                if ($saleIndexRequest->has('customer_id')) {
-                    $query->where('customer_id', $saleIndexRequest->customer_id);
-                }
+            if ($saleIndexRequest->has('customer_id')) {
+                $query->where('customer_id', $saleIndexRequest->customer_id);
+            }
 
-                if ($saleIndexRequest->has('date_from')) {
-                    $query->whereDate('sale_date', '>=', $saleIndexRequest->date_from);
-                }
+            if ($saleIndexRequest->has('date_from')) {
+                $query->whereDate('sale_date', '>=', $saleIndexRequest->date_from);
+            }
 
-                if ($saleIndexRequest->has('date_to')) {
-                    $query->whereDate('sale_date', '<=', $saleIndexRequest->date_to);
-                }
+            if ($saleIndexRequest->has('date_to')) {
+                $query->whereDate('sale_date', '<=', $saleIndexRequest->date_to);
+            }
 
-                $sortBy = $saleIndexRequest->get('sort_by', 'sale_date');
-                $sortOrder = $saleIndexRequest->get('sort_order', 'desc');
-                $query->orderBy($sortBy, $sortOrder);
+            $sortBy = $saleIndexRequest->get('sort_by', 'sale_date');
+            $sortOrder = $saleIndexRequest->get('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
 
-                $perPage = $saleIndexRequest->get('per_page', 15);
-                $sales = $query->paginate($perPage);
+            $perPage = $saleIndexRequest->get('per_page', 15);
+            $sales = $query->paginate($perPage);
 
-                return $sales->through(fn($sale) => SaleResponse::fromEloquentWithCustomer($sale)->toArray());
-            });
+            return $sales->through(fn($sale) => SaleResponse::fromEloquentWithCustomer($sale)->toArray());
         });
     }
 

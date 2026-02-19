@@ -2,6 +2,7 @@
 
 use App\Interface\Auth\AuthController;
 use App\Interface\Customer\Http\Controllers\CustomerController;
+use App\Interface\Dashboard\Http\Controllers\DashboardController;
 use App\Interface\Product\Http\Controllers\ProductController;
 use App\Interface\Sale\Http\Controllers\SaleController;
 use App\Interface\Tenant\Http\Controllers\TenantController;
@@ -28,6 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Sale report
     Route::get('sale/report', [SaleController::class, 'report']);
+
+    // Dashboard
+    Route::get('dashboard/stats', [DashboardController::class, 'stats']);
 
     Route::middleware('role:Admin|Vendedor')->group(function () {
         //Customer

@@ -44,4 +44,9 @@ class CustomerRepository implements CustomerRepositoryInterface
     {
         return Customer::query();
     }
+
+    public function countByTenant(int $tenantId): int
+    {
+        return Customer::where('tenant_id', $tenantId)->count();
+    }
 }
