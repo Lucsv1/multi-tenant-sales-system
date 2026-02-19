@@ -2,9 +2,9 @@
 
 namespace App\Interface\User\Http\Controllers;
 
-
 use App\Application\User\DTOs\UserIndexRequest;
 use App\Application\User\DTOs\UserRequest;
+use App\Application\User\DTOs\UserUpdateRequest;
 use App\Application\User\Service\UserService;
 use App\Infra\User\Persistence\Eloquent\User;
 use App\Interface\Shared\Http\Controllers\Controller;
@@ -59,10 +59,10 @@ class UserController extends Controller
         }
     }
 
-    public function update(UserRequest $userRequest, User $user): JsonResponse
+    public function update(UserUpdateRequest $UserUpdateRequest, User $user): JsonResponse
     {
         try {
-            $user = $this->userService->update($userRequest, $user);
+            $user = $this->userService->update($UserUpdateRequest, $user);
             return response()->json($user);
         } catch (Exception $e) {
             return response()->json([

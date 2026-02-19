@@ -15,6 +15,7 @@ class User
   private string $email_verified_at;
   private string $password;
   private bool $isActive;
+  private string|array $roles;
 
   public function __construct(
     string $id,
@@ -23,7 +24,8 @@ class User
     Email $email,
     string $email_verified_at,
     string $password,
-    bool $isActive
+    bool $isActive,
+    string|array $roles
   ) {
     $this->id = $id;
     $this->tenant_id = $tenant_id;
@@ -32,6 +34,7 @@ class User
     $this->email_verified_at = $email_verified_at;
     $this->password = $password;
     $this->isActive = $isActive;
+    $this->roles = $roles;
   }
 
   public function setName(string $name)
@@ -95,5 +98,13 @@ class User
   public function getId(): string
   {
     return $this->id;
+  }
+
+  /**
+   * Get the value of role
+   */
+  public function getRoles(): string|array
+  {
+    return $this->roles;
   }
 }

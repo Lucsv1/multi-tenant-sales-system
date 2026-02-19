@@ -43,6 +43,7 @@ export function useUserForm() {
       }
 
       if (isEditing.value) {
+        console.log(data);
         await updateUser(userId.value, data)
         $q.notify({ color: 'positive', message: 'Usuário atualizado com sucesso' })
       } else {
@@ -65,7 +66,7 @@ export function useUserForm() {
         form.value = {
           name: data.name,
           email: data.email,
-          role: data.roles?.[0]?.name || 'Vendedor',
+          role: data.roles?.[1]?.name || 'Vendedor',
           is_active: data.isActive
         }
       } catch (error) {
