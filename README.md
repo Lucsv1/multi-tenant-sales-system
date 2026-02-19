@@ -179,7 +179,7 @@ docker compose exec app php artisan db:seed
 
 5. **Acesse a aplicação**
 - API: http://localhost:8000
-- Swagger UI: http://localhost:8000/docs/view
+- Swagger UI: http://localhost:8000/api/docs/view
 - Frontend (Quasar): http://localhost:9000
 - Adminer (Gerenciador de BD): http://localhost:8080
 
@@ -359,8 +359,8 @@ Após iniciar a aplicação, acesso:
 
 | Recurso | URL |
 |---------|-----|
-| Swagger UI | http://localhost:8000/docs/view |
-| OpenAPI JSON | http://localhost:8000/docs |
+| Swagger UI | http://localhost:8000/api/docs/view |
+| OpenAPI JSON | http://localhost:8000/api/docs |
 
 ### Endpoints Disponíveis
 
