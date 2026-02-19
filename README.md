@@ -218,7 +218,6 @@ O sistema cria automaticamente usuários e tenants na primeira execução via se
 
 **O SuperAdmin pode:**
 - Criar e gerenciar tenants (lojas)
-- Acessar todos os dados do sistema
 - Gerenciar usuários globais
 
 ### Admins por Tenant
