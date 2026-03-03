@@ -16,7 +16,7 @@ jobs:
           php-version: "8.0"
       - uses: actions/checkout@v4
       - name: up the docker-compose
-        run: docker-compose up -d
+        run: docker compose up -d
       - name: Enter Laravel Backend Directory
         run: cd sales-backend
       - name: Copy .env
