@@ -15,6 +15,10 @@ jobs:
         with:
           php-version: "8.0"
       - uses: actions/checkout@v4
+      - name: Enter Laravel Backend Directory
+        run: cd sales-backend
+      - name: confirm Directory
+        run: pwd
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       - name: Install Dependencies
