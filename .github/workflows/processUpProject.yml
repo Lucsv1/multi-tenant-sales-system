@@ -2,7 +2,7 @@ name: Laravel
 
 on:
   push:
-    branches: ["main"]
+    branches: ["develop"]
   pull_request:
     branches: ["main"]
 
@@ -41,3 +41,12 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: php artisan test
+
+  Docker-compose:
+    runs-on: ubuntu-latest
+    needs: laravel-tests
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build docker compose
+        run: docker compose up -d
