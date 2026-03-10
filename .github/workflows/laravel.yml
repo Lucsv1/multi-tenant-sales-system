@@ -41,3 +41,12 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: php artisan test
+
+    DockerComposer:
+      runs-on: ubuntu-latest
+      needs: laravel-latest
+
+      steps:
+        - uses: actions/checkout@v4
+        - name: Build docker compose
+          run: docker-compose build -d
