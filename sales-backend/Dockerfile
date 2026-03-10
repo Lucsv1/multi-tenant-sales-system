@@ -27,6 +27,9 @@ RUN useradd -G www-data,root -u $uid -d /home/$user $user
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 
+RUN mkdir -p /var/www/vendor \
+    && chown -R www-data:www-data /var/www
+
 # Instalar Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
 
