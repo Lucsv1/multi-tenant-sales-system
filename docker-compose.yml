@@ -9,6 +9,7 @@ services:
     working_dir: /var/www
     volumes:
       - ./sales-backend:/var/www
+      - vendor_data:/var/www/vendor
       - ./sales-backend/docker/etc/php/local.ini:/usr/local/etc/php/conf.d/local.ini
       - ./sales-backend/docker/etc/php-fpm.d/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
     networks:
@@ -86,6 +87,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www
     volumes:
+      - vendor_data:/var/www/vendor
       - ./sales-backend:/var/www
     networks:
       - sales-network
@@ -113,4 +115,6 @@ volumes:
   mysql-data:
     driver: local
   redis-data:
+    driver: local
+  vendor_data:
     driver: local
