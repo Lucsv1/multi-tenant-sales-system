@@ -14,8 +14,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: up the docker-compose
         run: docker compose up -d
-      - name: configure Permissions
-        run: docker compose exec app bash -c "mkdir -p /var/www/vendor && chown -R www-data:www-data /var/www"
       - name: Install Dependencies
         run: docker compose exec app composer install
       - name: Generate key
