@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: banco-sales
+  labels:
+    app: sales
+spec:
+  containers:
+    - name: sales-db
+      image: mysql:8.0
+      ports:
+        - containerPort: 3306

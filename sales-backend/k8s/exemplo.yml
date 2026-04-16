@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sales
+  labels:
+    app: sales
+spec:
+  containers:
+    - name: sales-frontend
+      image: lucsv1/sales-frontend
+      ports:
+        - containerPort: 9000

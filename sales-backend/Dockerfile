@@ -27,8 +27,9 @@ RUN useradd -G www-data,root -u $uid -d /home/$user $user
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 
+# Criar vendor já com o usuário correto (sales, não www-data)
 RUN mkdir -p /var/www/vendor \
-    && chown -R www-data:www-data /var/www
+    && chown -R $user:$user /var/www
 
 # Instalar Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
