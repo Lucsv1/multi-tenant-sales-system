@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  labels:
+    app: db-config
+data:
+  MYSQL_DATABASE: sales-db
+  MYSQL_USER: sales_user
+  DB_URL: "mysql://sales_user:sales_password@banco-service:3306/sales-db"

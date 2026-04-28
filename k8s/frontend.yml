@@ -3,10 +3,16 @@ kind: Pod
 metadata:
   name: frontend-pod
   labels:
-    app: sales
+    app: frontend-pod
 spec:
   containers:
     - name: sales-frontend
       image: lucsv1/sales-frontend
       ports:
         - containerPort: 9000
+      env:
+        - name: VITE_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: front-config
+              key: VITE_API_URL

@@ -4,7 +4,7 @@ metadata:
   name: sales-service-backend
 spec:
   selector:
-    app: sales
+    app: backend-pod
   type: NodePort
   ports:
     - port: 80

@@ -4,7 +4,7 @@ metadata:
   name: sales-service
 spec:
   selector:
-    app: sales
+    app: frontend-pod
   type: NodePort
   ports:
     - port: 9000

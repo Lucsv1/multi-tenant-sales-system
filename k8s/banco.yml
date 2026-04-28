@@ -3,10 +3,36 @@ kind: Pod
 metadata:
   name: banco-sales
   labels:
-    app: sales
+    app: banco-sales
 spec:
   containers:
     - name: sales-db
       image: mysql:8.0
       ports:
         - containerPort: 3306
+      env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MYSQL_DATABASE
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MYSQL_USER
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: DB_URL
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret-banco
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret-banco
+              key: MYSQL_PASSWORD

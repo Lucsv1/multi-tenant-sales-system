@@ -4,9 +4,9 @@ metadata:
   name: banco-service
 spec:
   selector:
-    app: sales
-  type: ClusterIP
+    app: banco-sales
+  type: NodePort
   ports:
     - port: 3306
       targetPort: 3306
-      clusterIP: 30009
+      nodePort: 30009
