@@ -8,6 +8,9 @@ spec:
   containers:
     - name: sales-db
       image: mysql:8.0
+      volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
       ports:
         - containerPort: 3306
       env:
@@ -36,3 +39,7 @@ spec:
             secretKeyRef:
               name: secret-banco
               key: MYSQL_PASSWORD
+  volumes:
+    - name: mysql-data
+      persistentVolumeClaim:
+        claimName: sales-pvc
