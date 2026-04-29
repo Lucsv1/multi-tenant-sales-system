@@ -43,6 +43,8 @@ COPY --chown=$user:$user . /var/www
 # Mudar para usuário criado
 USER $user
 
+RUN composer install
+
 # Expor porta 9000 e iniciar php-fpm
 EXPOSE 9000
 CMD ["php-fpm"]

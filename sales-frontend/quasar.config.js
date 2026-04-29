@@ -66,7 +66,8 @@ export default defineConfig((/* ctx */) => {
     devServer: {
       port: 9000,
       host: '0.0.0.0',
-      open: false
+      open: false,
+      hmr: false
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework

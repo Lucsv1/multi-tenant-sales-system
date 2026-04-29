@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: front-replica
+  labels:
+    app: front-replica
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend-pod
+  template:
+    metadata:
+      labels:
+        app: frontend-pod
+    spec:
+      containers:
+        - name: sales-frontend
+          image: lucsv1/sales-frontend
+          ports:
+            - containerPort: 9000
+          env:
+            - name: VITE_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: front-config
+                  key: VITE_API_URL
